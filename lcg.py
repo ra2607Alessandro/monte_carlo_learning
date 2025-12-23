@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as mtp
 
 def lcg(seed,a,c,m,size):
-     #seed : int
+    #seed : int
     #a : int 
     #c : int relative prime
     #m : int relative prime
@@ -24,12 +24,21 @@ c = 1013904223
 m = 2**32
 size = 1000
 
-random_sequence = lcg(seed,a,c,m, size)
+random_sequence = lcg(seed,a,c,m,size)
 
-mtp.hist(random_sequence, bins=50, edgecolor='black', alpha=0.7)
-mtp.title("Pseudo-Random Numbers")
-mtp.xlabel("Values")
-mtp.ylabel("Frequency")
+# HISTOGRAM WITH MATPLOTLIB.PYPLOT
+
+#mtp.hist(random_sequence, bins=50, edgecolor='black', alpha=0.7)
+#mtp.title("Pseudo-Random Numbers")
+#mtp.xlabel("Values")
+#mtp.ylabel("Frequency")
+#mtp.show()
+
+mtp.scatter(random_sequence[:-1], random_sequence[1:], alpha = 0.5)
+mtp.title("Pseudo-Random Numbers with Scattered Diagram")
+mtp.xlabel("X_n")
+mtp.ylabel("X_n+1")
 mtp.show()
+
 
 
