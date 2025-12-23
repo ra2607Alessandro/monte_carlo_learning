@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as mtp
+import pandas as pd
 
 def lcg(seed,a,c,m,size):
     #seed : int
@@ -34,11 +35,21 @@ random_sequence = lcg(seed,a,c,m,size)
 #mtp.ylabel("Frequency")
 #mtp.show()
 
-mtp.scatter(random_sequence[:-1], random_sequence[1:], alpha = 0.5)
-mtp.title("Pseudo-Random Numbers with Scattered Diagram")
-mtp.xlabel("X_n")
-mtp.ylabel("X_n+1")
-mtp.show()
+# Scattered Plot Diagram
+#mtp.scatter(random_sequence[:-1], random_sequence[1:], alpha = 0.5)
+#mtp.title("Pseudo-Random Numbers with Scattered Diagram")
+#mtp.xlabel("X_n")
+#mtp.ylabel("X_n+1")
+##mtp.show()
+
+# AUTO-CORRELATION
+
+#series = pd.Series(random_sequence)
+
+#pd.plotting.autocorrelation_plot(series)
+#mtp.title("AUTO-CORRELATION")
+#mtp.show()
+
 
 
 
