@@ -1,5 +1,5 @@
 import numpy as np 
-import matplotlib as mtp
+import matplotlib.pyplot as mtp
 
 def lcg(seed,a,c,m,size):
      #seed : int
@@ -7,7 +7,7 @@ def lcg(seed,a,c,m,size):
     #c : int relative prime
     #m : int relative prime
 
-    sequence = np.zeros(seed)
+    sequence = np.zeros(size)
     sequence[0] = seed
     
 
@@ -17,5 +17,19 @@ def lcg(seed,a,c,m,size):
     return sequence 
 
 
+
+seed = 2
+a = 1664525
+c = 1013904223
+m = 2**32
+size = 1000
+
+random_sequence = lcg(seed,a,c,m, size)
+
+mtp.hist(random_sequence, bins=50, edgecolor='black', alpha=0.7)
+mtp.title("Pseudo-Random Numbers")
+mtp.xlabel("Values")
+mtp.ylabel("Frequency")
+mtp.show()
 
 
