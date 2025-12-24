@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 import scipy.stats as stats
 import matplotlib.pyplot as plt
-
+from revised_lcg import  a, seed, size, m, c, lcg
 
 S = 101.45
 K = 98.01
@@ -14,32 +14,41 @@ N = 10
 M = 1000
 
 market_value = 3.86
-T = ((datetime.date(2025,10,30) -datetime.date(2025,10,5)).days+1)/365
+T = ((datetime.date(2025,10,30) -datetime.date(2025,9,5)).days+1)/365
 print(T)
 
-dt = T/M
+
+# Drift and Diffusion: log(S) + (r - 0.5*vol**2)*dt + vol*np.sqrt(dt)
+dt = T/N
 nudt = (r - 0.5*vol**2)*dt
 volsdt = vol*np.sqrt(dt)
-lnS = np.log(S)
+lnS = np.log(S) # the model evolves log prices not prices 
 
-S_0 = 0
-S_I = 0
+# Standard Error Placeholders
+sum_CT = 0
+sum_CT2 = 0
 
+# Heart of the Monte Carlo Method
 for i in range(M):
     lnSt = lnS
     for j in range(N):
-       lnSt = lnSt + nudt + volsdt*np.random.normal()
+        lnSt = lnSt + nudt + volsdt*np.random.normal() 
+# Markov Chain: lnS + nudt*dt + volsdt*Z
+# Z is a random number that is meant to create the random shock in the drift and diffusion model
 
-    ST = np.exp(lnSt)
-    CT = max(0, ST - K)
-    S_0 = S_0 + CT
-    S_I = S_I + CT*CT 
 
-C0 = np.exp(-r*T)*S_0/M
-sigma = np.sqrt( (S_I - S_0*S_0/M)*np.exp(-2*r*T) / (M-1) )
+    ST = np.exp(lnSt) #this will convert back to a price
+    CT = max(0, ST - K) #option payoff
+    sum_CT = sum_CT + CT
+    sum_CT2 = sum_CT2 + CT*CT
+
+# Compute Expectation and SE
+C0 = np.exp(-r*T)*sum_CT/M #estimation of the option price
+sigma = np.sqrt( (sum_CT2 - sum_CT*sum_CT/M)*np.exp(-2*r*T) / (M-1) ) # *np.exp(-2*r*T) is added here because the variance scales,
+                                                                      #  and therefore it has to be added to the standard error
 SE = sigma/np.sqrt(M)
 
-print("Call value is ${0} with SE +/- {1}".format(np.round(C0,2),np.round(SE,2))) 
+print("Call value is ${0} with SE +/- {1}".format(np.round(C0,2),np.round(SE,2)))
 x1 = np.linspace(C0-3*SE, C0-1*SE, 100)
 x2 = np.linspace(C0-1*SE, C0+1*SE, 100)
 x3 = np.linspace(C0+1*SE, C0+3*SE, 100)
