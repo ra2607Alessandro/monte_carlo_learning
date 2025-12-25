@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 
 rng = np.random.default_rng(42) #to reproduce a random series of nums starting from a seed
@@ -32,9 +33,14 @@ fig, ax = plt.subplots(1, 1, figsize=(12, 8)) #use the subplots componenet
 #loop around the paths, plot the time plot and the series of 0 with this vectorized path W[path,:], then show
 for path in range(paths):
     ax.plot(timeline,W[path,:])
-ax.set_title("Standard Brownian Motion sample paths")
-ax.set_xlabel("Time")
-ax.set_ylabel("Asset Price")
-plt.show()
 
+#ax.set_xlabel("Time")
+#ax.set_ylabel("Value")
+
+
+final_values = pd.DataFrame({'final_values': W[:, -1]}) # creating a Dataframe with pandas
+sns.kdeplot(data=final_values, x='final_values', fill=True, ax=ax) # using seaborn for a kernel that estimates prob distr from a finite sample data
+ax.set_ylim(0.0, 0.325)
+ax.set_xlabel('Final Values of Asset Paths')
+plt.show()
 
