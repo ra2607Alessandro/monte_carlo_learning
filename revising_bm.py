@@ -26,8 +26,9 @@ for path in range (paths):
 #ax.set_xlabel("Time")
 #ax.set_ylabel("Value")
 #plt.show()
-d = pd.DataFrame({'d':W[:,-1]})
-sns.kdeplot(data=d,x='d',fill=True,ax=ax)
+d = pd.DataFrame({'d':W[:,-1]})#KDE, finite data
+sns.kdeplot(data=d,x='d',fill=True,ax=ax)#KDE with estimated probability distribution given finite data
 ax.set_ylim(0.0, 0.325)
 ax.set_xlabel("Value Assets")
 plt.show()
+
