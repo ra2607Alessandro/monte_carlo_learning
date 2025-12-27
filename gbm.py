@@ -38,14 +38,14 @@ class GMB:
         zeros = pd.Series(np.zeros(len(date_range)))#create a zero for every single data
         return pd.DataFrame(
             {
-                'data': date_range,
+                'date': date_range,
                 'open':zeros,
                 'high': zeros,
                 'low': zeros,
                 'volume': zeros
 
             }
-        )[['data','open','high','low','volume']]
+        )[['date','open','high','low','volume']]
         
 
     def GMB_simulation(self, data):
@@ -57,6 +57,18 @@ class GMB:
         return self.init_price * asset_price.cumprod() 
     
     def append_data_to_csv(self,data,path):
+        data['open'] = path[0::4]
+        data['close'] = path[3::4]
+
+        data['high'] = np.maximum(
+                 np.maximum(path[0::4],path[1::4]),
+                 np.maximum(path[2::4],path[3::4])
+        )
+        data['low'] = np.minimum(
+            np.minimum(path[0::4],path[1::4]),
+            np.minimum(path[2::4],path[3::4])
+        )
+    
     
 
 
