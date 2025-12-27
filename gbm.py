@@ -137,4 +137,6 @@ def cli(num_assets, random_seed, start_date, end_date, output_dir, symbol_length
         gbmas()
 
         
-          
+
+if __name__ == "__main__":
+    click()
