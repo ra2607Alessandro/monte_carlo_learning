@@ -30,9 +30,36 @@ class GMB:
     def generate_random_symbol(self):
         return " ".join(random.choice(string.ascii_uppercase,k = self.symbol_length))
     
+    def create_empty_frame(self):
+        date_range = pd.date_range(
+        self.start_date,
+        self.end_date,
+        freq='B')
+        zeros = pd.Series(np.zeros(len(date_range)))#create a zero for every single data
+        return pd.DataFrame(
+            {
+                'data': date_range,
+                'open':zeros,
+                'high': zeros,
+                'low': zeros,
+                'volume': zeros
+
+            }
+        )[['data','open','high','low','volume']]
+        
+
+    def GMB_simulation(self, data):
+        n = len(data)
+        T = 242 #business days in a year
+        dt = T/(4*n) # we need 4 prices x day
+
+        asset_price = np.exp((self.mu - (self.sigma**2)/2)*dt + self.sigma*random.normal(0,np.sqrt(dt),size = 4 * n))
+        return self.init_price * asset_price.cumprod() 
+    
+    def append_data_to_csv(self,data,path):
     
 
-    def GMB_simulation():
+
 
     def __call__(self, *args, **kwds):
         
