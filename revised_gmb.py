@@ -202,8 +202,46 @@ class GeometricBrownianMotionAssetSimulator:
         self._append_path_to_data(data= frame, path= gbm)
         self._append_volume_to_data(frame)
         self._output_frame_to_dir(symbol=symbol,data=frame)
-    def cli():
 
+@click.command()
+@click.option('--num-assets', 'num_assets', default='1', help='Number of separate assets to generate files for')
+@click.option('--random-seed', 'random_seed', default='42', help='Random seed to set for both Python and NumPy for reproducibility')
+@click.option('--start-date', 'start_date', default=None, help='The starting date for generating the synthetic data in YYYY-MM-DD format')
+@click.option('--end-date', 'end_date', default=None, help='The starting date for generating the synthetic data in YYYY-MM-DD format')
+@click.option('--output-dir', 'output_dir', default=None, help='The location to output the synthetic data CSV file to')
+@click.option('--symbol-length', 'symbol_length', default='5', help='The length of the asset symbol using uppercase ASCII characters')
+@click.option('--init-price', 'init_price', default='100.0', help='The initial stock price to use')
+@click.option('--mu', 'mu', default='0.1', help='The drift parameter, \mu for the GBM SDE')
+@click.option('--sigma', 'sigma', default='0.3', help='The volatility parameter, \sigma for the GBM SDE')
+@click.option('--pareto-shape', 'pareto_shape', default='1.5', help='The shape of the Pareto distribution simulating the trading volume')
+   
+def cli(num_assets,random_seed,start_date,end_date,output_dir,symbol_length,init_price,mu,sigma,pareto_shape):
+    num_assets = int(num_assets)
+    random_seed = int(random_seed)
+    symbol_length = int(symbol_length)
+    init_price = float(init_price)
+    mu = float(mu)
+    sigma = float(sigma)
+    pareto_shape = float(pareto_shape)
+
+    # Need to seed both Python and NumPy separately
+    # seed method simply means that the number you abscribe to it is the seed from which the num gen starts
+    random.seed(random_seed)
+    np.random.seed(seed=random_seed)
+
+    gbm = GeometricBrownianMotionAssetSimulator(
+        init_price= init_price,
+        start_date=start_date,
+        end_data=end_date,
+        sigma=sigma,
+        symbol_length=symbol_length,
+        output_dir=output_dir,
+        pareto_shape=pareto_shape,
+        mu=mu
+    )
+    for i in range(num_assets):
+        print(i)
+        gbm()
 
     if __name__ == "__main__":
         cli()
