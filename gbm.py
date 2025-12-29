@@ -7,6 +7,7 @@ import string
 import click
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class GeometricBrownianMotionAssetSimulator:
@@ -281,5 +282,11 @@ def cli(num_assets, random_seed, start_date, end_date, output_dir, symbol_length
         gbmas()
 
 
+
+
+
 if __name__ == "__main__":
-    cli()
+    # Change BUAWV.csv to your preferred ticker symbol
+    df = pd.read_csv('BUAWV.csv').set_index('date')
+    df[['open', 'high', 'low', 'close']].plot()
+    plt.show()
