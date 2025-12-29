@@ -65,6 +65,12 @@ class GeometricBrownianMotionAssetSimulator:
         `str`
             The random ticker string composed of uppercase letters.
         """
+
+        return str(random.choices(
+            string.ascii_uppercase,
+            k=self.symbol_length
+        ))
+    
     def _create_empty_frame(self):
         """
         Creates the empty Pandas DataFrame with a date column using
