@@ -123,7 +123,7 @@ class GeometricBrownianMotionAssetSimulator:
         return self.init_price * asset_path.cumproduct()
 
 
-    def _append_path_to_data(self):
+    def _append_path_to_data(self,data,path):
         """
         Correctly accounts for the max/min calculations required
         to generate a correct high and low price for a particular
@@ -147,6 +147,14 @@ class GeometricBrownianMotionAssetSimulator:
         path : `np.ndarray`
             The original NumPy array of the asset price path.
         """
+        
+
+        data['open'] = path[0::4]
+        data['close'] = path[3::4]
+
+        data['high'] = np.maximum(np.maximum(path[0::4],path[1::4]),np.maximum(path[2::4],path[3::4]))
+        data['low'] = np.minimum(np.minimum(path[0::4],path[1::4]),np.minimum(path[2::4],path[3::4]))
+
     def _append_volume_to_data(self):
         """
         Utilises a Pareto distribution to simulate non-negative
