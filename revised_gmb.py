@@ -94,7 +94,7 @@ class GeometricBrownianMotionAssetSimulator:
         })[['date','open','high','low','close','volume']]
 
 
-    def _create_gmb(self):
+    def _create_gmb(self,data):
         """
         Calculates an asset price path using the analytical solution
         to the Geometric Brownian Motion stochastic differential
@@ -115,6 +115,14 @@ class GeometricBrownianMotionAssetSimulator:
         `np.ndarray`
             The asset price path (four times as long to include OHLC).
         """
+        n = len(data)
+        T = 242.0
+        dt = T/(4.0*n)
+
+        asset_path = np.exp((self.mu - (self.sigma**2)/2)*dt + self.sigma*np.random.normal(0, np.sqrt(dt),size=4*n))
+        return self.init_price * asset_path.cumproduct()
+
+
     def _append_path_to_data(self):
         """
         Correctly accounts for the max/min calculations required
