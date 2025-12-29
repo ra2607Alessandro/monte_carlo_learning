@@ -244,9 +244,12 @@ def cli(num_assets,random_seed,start_date,end_date,output_dir,symbol_length,init
         gbm()
 
     if __name__ == "__main__":
-        cli()
+        df = pd.read_csv('BUAWV.csv').set_index('date')
+        df[['open', 'high', 'low', 'close']].plot()
+        plt.show()
         
 
 
 
 
+#python revised_gmb.py --num-assets=5 --random-seed=41 --start-date='1993-01-01' --end-date='2022-07-31' --output-dir='.' --symbol-lenth=5 --init-price=100.0 --mu=0.1 --sigma=0.3 --pareto-shape=1.5
