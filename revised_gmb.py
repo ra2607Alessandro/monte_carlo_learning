@@ -170,11 +170,8 @@ class GeometricBrownianMotionAssetSimulator:
         data['volume'] = np.array(list(map(int,np.random.pareto(
             self.pareto_shape, # pandas pareto takes in a float or float[]
             size=len(data)     # and a size : int 
-            )
-            )
-            )
-            )
-    def _output_frame_to_dir(self):
+            ))))
+    def _output_frame_to_dir(self,symbol, data):
         """
         Output the fully-populated DataFrame to disk into the
         desired output directory, ensuring to trim all pricing
@@ -187,6 +184,10 @@ class GeometricBrownianMotionAssetSimulator:
         data : `pd.DataFrame`
             The DataFrame containing the generated OHLCV data.
         """
+        output_file = os.path.join(self.output_dir, '%s.csv' % symbol) #os is a library that allows you to interact with the OS
+        data.to_csv(output_file, index=False, float_format='%.2f')
+
+
     def __call__(self):
         """
         The entrypoint for generating the asset OHLCV frame. Firstly this
@@ -194,6 +195,13 @@ class GeometricBrownianMotionAssetSimulator:
         frame with some simulated GBM data. The asset volume is then appended
         to this data and finally it is saved to disk as a CSV.
         """
+        symbol = self._generate_random_symbol()
+        frame= self._create_empty_frame()
+        gbm = self._create_gmb(frame)
+        # if one method isn't a parameter in others, simply use the method without calling it a variable
+        self._append_path_to_data(data= frame, path= gbm)
+        self._append_volume_to_data(frame)
+        self._output_frame_to_dir(symbol=symbol,data=frame)
     def cli():
 
 
