@@ -82,6 +82,18 @@ class GeometricBrownianMotionAssetSimulator:
         `pd.DataFrame`
             The empty OHLCV DataFrame for subsequent population.
         """
+        data = pd.date_range(self.start_date,self.end_date, freq="B")
+        zeros = pd.Series(np.zeros(len(data)))
+        return pd.DataFrame({
+                'date': data,
+                'open': zeros,
+                'high': zeros,
+                'low': zeros,
+                'close': zeros,
+                'volume': zeros
+        })[['date','open','high','low','close','volume']]
+
+
     def _create_gmb(self):
         """
         Calculates an asset price path using the analytical solution
