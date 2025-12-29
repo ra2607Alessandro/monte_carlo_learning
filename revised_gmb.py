@@ -155,7 +155,7 @@ class GeometricBrownianMotionAssetSimulator:
         data['high'] = np.maximum(np.maximum(path[0::4],path[1::4]),np.maximum(path[2::4],path[3::4]))
         data['low'] = np.minimum(np.minimum(path[0::4],path[1::4]),np.minimum(path[2::4],path[3::4]))
 
-    def _append_volume_to_data(self):
+    def _append_volume_to_data(self,data):
         """
         Utilises a Pareto distribution to simulate non-negative
         volume data. Note that this is not correlated to the
@@ -167,6 +167,13 @@ class GeometricBrownianMotionAssetSimulator:
         data : `pd.DataFrame`
             The DataFrame to append volume data to, in place.
         """
+        data['volume'] = np.array(list(map(int,np.random.pareto(
+            self.pareto_shape, # pandas pareto takes in a float or float[]
+            size=len(data)     # and a size : int 
+            )
+            )
+            )
+            )
     def _output_frame_to_dir(self):
         """
         Output the fully-populated DataFrame to disk into the
