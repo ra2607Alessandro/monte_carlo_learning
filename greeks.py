@@ -12,6 +12,19 @@ import numpy as np
 # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
 
 def montecarlo_pricing(S,T,K,sigma,r  ):
-    ST = S*np.exp((r - (0.5*((sigma**2)/2)))*T + sigma*(np.sqrt(T)*np.random.normal()))
-    payoff = np.maximum(ST - K, 0)
-    return np.exp(-1*(r*T)) * np.mean(payoff)
+    ST = S*np((r - ((sigma**2)/2))*T + sigma*np.sqrt(T)*np.random.normal())
+    payoffs = np.maximum(ST - K , 0)
+    return np.exp(-(r*T))*np.mean(payoffs)
+
+    #look for formulas and theory while you code
+def calculate_greeks():
+     # params: S, K, r, sigma, T, iterations=1000000
+     #  Generate random shocks once to use for all perturbations
+     # Define a small 'bump' (h)
+     h = 0.01 * S 
+      # --- DELTA & GAMMA ---
+    # We need price at S+h, S, and S-h with montecarlo
+    # create greeks from the prices
+    # --- VEGA ---
+    # We need price at sigma + h
+    #return the greeks
