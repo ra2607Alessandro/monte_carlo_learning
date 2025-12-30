@@ -285,7 +285,7 @@ def cli(num_assets, random_seed, start_date, end_date, output_dir, symbol_length
 
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" :
     # use: python gbm.py --num-assets=5 --random-seed=41 --start-date='1993-01-01' --end-date='2022-07-31' --output-dir='.' --symbol-lenth=5 --init-price=100.0 --mu=0.1 --sigma=0.3 --pareto-shape=1.5
     # to creeate the various files for the time series such as BUAWV.csv or DSERQ.csv
     # Change BUAWV.csv to your preferred ticker symbol
