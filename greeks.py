@@ -12,15 +12,15 @@ import numpy as np
 # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
 
 def montecarlo_pricing(S,T,K,sigma,r ,z ):
-    ST = S*np((r - ((sigma**2)/2))*T + sigma*np.sqrt(T)*z)
+    ST = S*np.exp((r - ((sigma**2)/2))*T + sigma*np.sqrt(T)*z)
     payoffs = np.maximum(ST - K , 0)
     return np.exp(-(r*T))*np.mean(payoffs)
 
     #look for formulas and theory while you code
-def calculate_greeks(S,K,T,sigma,r,iters:1000000 ):
+def calculate_greeks(S,K,T,sigma,r,iterations ):
      # params: S, K, r, sigma, T, iterations=1000000
      #  Generate random shocks once to use for all perturbations
-    Z = np.random.normal(size=iters)
+    Z = np.random.normal(size=iterations)
      # Define a small 'bump' (h)
     h = 0.01 * S 
     vol_h = 0.01 # 1% bump for Vega
@@ -46,3 +46,8 @@ def calculate_greeks(S,K,T,sigma,r,iters:1000000 ):
         "Gamma": gamma,
         "Vega": vega
     }
+
+results = calculate_greeks(S=100, K=100, r=0.05, sigma=0.2, T=1, iterations= 1000000  )
+
+for greek, value in results.items():
+    print(f"{greek}: {value:.4f}")
