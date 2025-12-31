@@ -32,12 +32,17 @@ def calculate_greeks(S,K,T,sigma,r,iters:1000000 ):
 
     # create greeks from the prices
     delta = (price_plus - price_minus)/2*h
-    gamma = (price_plus - 2*(price_mid) - price_minus)/(h**2)
+    gamma = (price_plus - 2*(price_mid) + price_minus)/(h**2)
     # --- VEGA ---
     # We need price at sigma + h
     d_sigma_plus = montecarlo_pricing(S, T,K,sigma + vol_h,r,Z)
     d_sigma_minus = montecarlo_pricing(S,T,K,sigma - vol_h,r,Z)
-    vega = (d_sigma_plus - d_sigma_minus)/(2*h)
+    vega = (d_sigma_plus - d_sigma_minus)/(2*vol_h)
 
     #return the greeks
-    return delta,gamma,vega
+    return {
+        "Price": price_mid,
+        "Delta": delta,
+        "Gamma": gamma,
+        "Vega": vega
+    }
