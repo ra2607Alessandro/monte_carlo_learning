@@ -23,7 +23,7 @@ def calc_greeks(S,T,K,sigma,r ,iterations):
     Z_simmetry = -1*Z
 
    
-    arr = np.concatenate([Z,Z_simmetry]) # with np.concatenate you merge two lists together
+    arr = np.concatenate([Z,Z_simmetry]) # with np.concatenate([a,b]) you merge two lists together
 
     h = S * 0.01
     vol_h = 0.01
