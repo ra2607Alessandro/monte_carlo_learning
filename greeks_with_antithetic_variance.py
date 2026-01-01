@@ -19,6 +19,10 @@ def mc_pricing(S,T,K,sigma,r ,z ):
 def calc_greeks(S,T,K,sigma,r ,iterations):
 
     Z = np.random.normal(size=(0.5*iterations))
+    Z_simmetry = -1*Z
+
+    arr = pd.array(Z,Z_simmetry)
+
     h = S * 0.01
     vol_h = 0.01
 
