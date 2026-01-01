@@ -21,20 +21,20 @@ def calc_greeks(S,T,K,sigma,r ,iterations):
     Z = np.random.normal(size=(0.5*iterations))
     Z_simmetry = -1*Z
 
-    arr = pd.array(Z,Z_simmetry)
+    arr = np.concatenate(Z,Z_simmetry) # with np.concatenate you merge two lists together
 
     h = S * 0.01
     vol_h = 0.01
 
-    price_minus = mc_pricing(S - h,T,K,sigma, r, Z)
-    price_plus = mc_pricing(S + h, T, K, sigma , r, Z)
-    price_mid = mc_pricing(S,T,K,sigma,r,Z)
+    price_minus = mc_pricing(S - h,T,K,sigma, r, arr)
+    price_plus = mc_pricing(S + h, T, K, sigma , r, arr)
+    price_mid = mc_pricing(S,T,K,sigma,r,arr)
 
     delta = (price_plus - price_minus)/(2*h)
     gamma = (price_plus -2*(price_mid) + price_minus)/(h**2)
 
-    price_vol_min_h = mc_pricing(S,T,K,sigma - vol_h,r,Z)
-    price_vol_plus_h = mc_pricing(S,T,K,sigma + vol_h,r,Z)
+    price_vol_min_h = mc_pricing(S,T,K,sigma - vol_h,r,arr)
+    price_vol_plus_h = mc_pricing(S,T,K,sigma + vol_h,r,arr)
 
     vega = (price_vol_plus_h - price_vol_min_h)/(2*vol_h)
 
