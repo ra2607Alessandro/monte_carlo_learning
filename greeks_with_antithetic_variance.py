@@ -18,10 +18,16 @@ def mc_pricing(S,T,K,sigma,r ,z ):
 
 def calc_greeks(S,T,K,sigma,r ,iterations):
 
-    Z = np.random.normal(size=(0.5*iterations))
+    Z = np.random.normal(size=(int(0.5*iterations)))
+
     Z_simmetry = -1*Z
 
-    arr = np.concatenate(Z,Z_simmetry) # with np.concatenate you merge two lists together
+    arr = []
+    
+    for i in range(len(Z)):
+        val = int(Z[i])
+        val_sim = int(-1*val)
+        arr = np.concatenate(val,val_sim) # with np.concatenate you merge two lists together
 
     h = S * 0.01
     vol_h = 0.01
