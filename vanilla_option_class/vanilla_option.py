@@ -3,21 +3,30 @@ import numpy as np
 class Vanilla:
 
     def __init__(self,K,T,option_type):
-        self.K = K
-        self.T = T
-        self.option_type = option_type
+        if K > 0:
+          self.K = K
+        if T > 0:
+          self.T = T
+        if option_type == "call" or option_type == "put" :
+          self.option_type = option_type
+
 
     def payoff(self,ST):
-        
+        ST_arr = np.array(ST)
         payoff = 0
         if self.option_type == "call":
             payoff = np.maximum(ST-self.K,0)
         elif self.option_type == "put":
             payoff = np.maximum(self.K - ST, 0)
-        elif len(ST)> 1:
-            ST_terminal = ST[:,-1]
-            arr = np.array(ST_terminal)
-            return arr
+        elif ST_arr.ndim == 0:
+           ST_terminal = ST_arr.item()
+           payoff = np.maximum(ST_terminal-self.K,0)
+        elif ST_arr.ndim == 1:
+           ST_terminal = ST_arr
+           payoff = np.maximum(ST_terminal-self.K,0)
+        elif ST_arr.ndim == 2:
+           ST_terminal = ST_arr[:,-1]
+           payoff = np.maximum(ST_terminal-self.K,0)
         
         return payoff
     
