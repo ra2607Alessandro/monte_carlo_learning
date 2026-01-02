@@ -14,7 +14,7 @@ class Vanilla:
         if self.option_type == "call":
             payoff = np.maximum(ST-self.K,0)
         elif self.option_type == "put":
-            payoff = np.minimum(ST-self.K, 0)
+            payoff = np.maximum(self.K - ST, 0)
         
         return payoff
 
