@@ -50,7 +50,7 @@ class Vanilla:
         else:
             result = np.maximum(self.K - terminal, 0)
         
-        if np.isscalar(terminal):
+        if np.isscalar(terminal):# to look for scalars
             return float(result)
         else:
             return result
