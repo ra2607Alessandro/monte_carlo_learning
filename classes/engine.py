@@ -9,5 +9,16 @@ class MonteCarloEngine:
         else:
             self.rng = np.random.default_rng()
         
-    def price(self, r,sigma, n_paths,method = 'plain',Z = None,return_payoffs = False):
+    def price(self, r,sigma, n_paths,method ,return_payoffs = False):
+        if method == 'plain':
+            Z = self.rng
+        if method == 'antithetic':
+            arr = (self.rng)/2
+            arr_simmetric = - arr
+            Z = np.concatenate([arr,arr_simmetric])
+        else:
+            raise ValueError("method is either 'plain' or 'antithetic'")
+        
+        #pricing equation
+        
         
