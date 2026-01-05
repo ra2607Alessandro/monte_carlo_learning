@@ -1,5 +1,5 @@
 import numpy as np
-
+from vanilla_option import Vanilla
 class MonteCarloEngine:
 
     def __init__(self,option, rng = None):
@@ -9,7 +9,7 @@ class MonteCarloEngine:
         else:
             self.rng = np.random.default_rng()
         
-    def price(self, r,sigma, n_paths,method ,return_payoffs = False):
+    def price(self,S, r,sigma, T,method ,return_payoffs = False):
         if method == 'plain':
             Z = self.rng
         if method == 'antithetic':
@@ -20,5 +20,7 @@ class MonteCarloEngine:
             raise ValueError("method is either 'plain' or 'antithetic'")
         
         #pricing equation
+        price = Vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
+        
         
         

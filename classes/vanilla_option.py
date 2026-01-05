@@ -55,8 +55,7 @@ class Vanilla:
         else:
             return result
     
-    def simulate_terminal(self,S,r,sigma,iters):
-        Z = np.random.normal(size=iters)
+    def simulate_terminal(self,S,r,sigma,Z):
         ST = S*np.exp((r-0.5*(sigma**2))*self.T + sigma*np.sqrt(self.T)*Z)
         return ST
 
