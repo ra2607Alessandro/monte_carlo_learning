@@ -20,7 +20,7 @@ class MonteCarloEngine:
             raise ValueError("method is either 'plain' or 'antithetic'")
         
         #pricing equation
-        vanilla = Vanilla.__init__(K=K,T=T,option_type=self.option)
+        Vanilla.__init__(K=K,T=T,option_type=self.option)
         price = Vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
         return_payoffs = Vanilla.payoff(ST=price)
         return return_payoffs
