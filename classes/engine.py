@@ -25,16 +25,19 @@ class MonteCarloEngine:
         return_payoffs = Vanilla.payoff(ST=price)
         return return_payoffs
     
-    def bumps(self,S):
+    def bumps(self,S, r,sigma,Z):
         h = S * 0.01
         vol_h = 0.01
-    
+        price_plus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r)
+        price = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S ,r=r,sigma=sigma, Z=Z),r=r)
+        price_minus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S - h,r=r,sigma=sigma, Z=Z),r=r)
+        vol_plus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S ,r=r,sigma=sigma + vol_h, Z=Z),r=r)
+        vol_minus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S,r=r,sigma=sigma - vol_h, Z=Z),r=r)
         return {
             'price bump' : h,
             'vol_h' : vol_h
         }
 
-    def delta(self,S, r,sigma,K, T,method)
-
+    
 
          
