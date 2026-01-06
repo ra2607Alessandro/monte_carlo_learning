@@ -20,11 +20,16 @@ class MonteCarloEngine:
             raise ValueError("method is either 'plain' or 'antithetic'")
         
         #pricing equation
-        Vanilla.__init__(K=K,T=T,option_type=self.option)
-        price = Vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
-        return_payoffs = Vanilla.payoff(ST=price)
-        return return_payoffs
-    
+        vanilla =Vanilla(K=K,T=T,option_type=self.option)
+        ST = vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
+        payoff = vanilla.payoff(ST=ST)
+        price = np.exp(- r*T)*np.mean(payoff)
+        
+        if return_payoffs:
+            return price,payoff
+        else:
+            return price
+
     def bumps(self,S, r,sigma,Z):
         h = S * 0.01
         vol_h = 0.01
