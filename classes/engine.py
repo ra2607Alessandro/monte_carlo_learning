@@ -13,7 +13,7 @@ class MonteCarloEngine:
         if method == 'plain':
             Z = self.rng
         if method == 'antithetic':
-            arr = np.random.default_rng((n_sims)/2)
+            arr = np.random.standard_normal((n_sims)/2)
             arr_simmetric = - arr
             Z = np.concatenate([arr,arr_simmetric])
         else:
@@ -30,10 +30,11 @@ class MonteCarloEngine:
         else:
             return price
 
-    def bumps(self,S, r,sigma,Z):
+    def bumps(self,S, r,sigma,Z,K,T):
+        vanilla =Vanilla(K=K,T=T,option_type=self.option)
         h = S * 0.01
         vol_h = 0.01
-        price_plus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r)
+        price_plus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r)
         price = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S ,r=r,sigma=sigma, Z=Z),r=r)
         price_minus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S - h,r=r,sigma=sigma, Z=Z),r=r)
         vol_plus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S ,r=r,sigma=sigma + vol_h, Z=Z),r=r)
@@ -48,7 +49,10 @@ class MonteCarloEngine:
             'sigma - bump': vol_minus
         }
     
-    def greeks(self,greek,S,r,sigma,Z):
+    def greeks(self,greek,S,r,sigma,n_sims):
+        # Use same random shocks for all bumps (variance reduction) just like you did in antitethic in the price class
+        Z = np.random.standard_normal(n_sims) 
+
         prices = self.bumps(S, r,sigma,Z)
         if greek.lower() == 'delta':
             # formula = (V*(S_o + h) - V*(S_o - h))/(2*h)
