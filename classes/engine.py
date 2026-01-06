@@ -35,8 +35,16 @@ class MonteCarloEngine:
         vol_minus = Vanilla.discounted_payoff(ST=Vanilla.simulate_terminal(S=S,r=r,sigma=sigma - vol_h, Z=Z),r=r)
         return {
             'price bump' : h,
-            'vol_h' : vol_h
+            'sigma bump' : vol_h,
+            'price + bump' : price_plus,
+            'price - bump' : price_minus,
+            'price': price,
+            'sigma + bump': vol_plus,
+            'sigma - bump': vol_minus
         }
+    
+    def greeks(self,greek,S,r,sigma,Z):
+        
 
     
 
