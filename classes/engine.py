@@ -47,17 +47,17 @@ class MonteCarloEngine:
         prices = self.bumps(S, r,sigma,Z)
         if greek.lower() == 'delta':
             # formula = (V*(S_o + h) - V*(S_o - h))/(2*h)
-            delta = (prices[2] - prices[3])/2*prices[0]
+            delta = (prices['price + bump'] - prices['price - bump'])/2*prices['price bump']
             return delta
 
         if greek.lower() == 'gamma':
             # formula = (V*(S_o + h) - (2*(V)*(S_o) + V*(S_o - h) ))/ (h**2)
-            gamma = (prices[2] - 2*(prices[4]) + prices[3])/prices[0]**2
+            gamma = (prices['price + bump'] - 2*(prices['price']) + prices['price - bump'])/prices['price bump']**2
             return gamma
         
         if greek.lower() == 'vega':
            # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
-           vega = (prices[5] - prices[6])/2*prices[1]
+           vega = (prices['sigma + bump'] - prices['sigma - bump'])/2*prices['sigma bump']
            return vega
 
         else:
