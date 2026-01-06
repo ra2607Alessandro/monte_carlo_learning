@@ -46,10 +46,19 @@ class MonteCarloEngine:
     def greeks(self,greek,S,r,sigma,Z):
         prices = self.bumps(S, r,sigma,Z)
         if greek.lower() == 'delta':
-        
+            # formula = (V*(S_o + h) - V*(S_o - h))/(2*h)
+            delta = (prices[2] - prices[3])/2*prices[0]
+            return delta
+
         if greek.lower() == 'gamma':
+            # formula = (V*(S_o + h) - (2*(V)*(S_o) + V*(S_o - h) ))/ (h**2)
+            gamma = (prices[2] - 2*(prices[4]) + prices[3])/prices[0]**2
+            return gamma
         
         if greek.lower() == 'vega':
+           # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
+           vega = (prices[5] - prices[6])/2*prices[1]
+           return vega
 
         else:
             raise ValueError('greek can only be delta, gamma, vega')
