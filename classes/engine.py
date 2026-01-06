@@ -1,5 +1,5 @@
 import numpy as np
-from vanilla_option import Vanilla
+from vanilla_option import Vanilla as Vanilla
 class MonteCarloEngine:
 
     def __init__(self,option, rng = None):
@@ -9,11 +9,11 @@ class MonteCarloEngine:
         else:
             self.rng = np.random.default_rng()
         
-    def price(self,S, r,sigma,K, T,method ,return_payoffs = False):
+    def price(self,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
         if method == 'plain':
             Z = self.rng
         if method == 'antithetic':
-            arr = (self.rng)/2
+            arr = np.random.default_rng((n_sims)/2)
             arr_simmetric = - arr
             Z = np.concatenate([arr,arr_simmetric])
         else:
