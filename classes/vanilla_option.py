@@ -62,3 +62,4 @@ class Vanilla:
     def discounted_payoff(self, ST, r):
         """Return discounted payoff(s) given terminal price(s) ST and rate r."""
         return np.exp(-r * self.T) * self.payoff(ST)
+    

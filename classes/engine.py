@@ -73,5 +73,32 @@ class MonteCarloEngine:
             raise ValueError('greek can only be delta, gamma, vega')
        
     
+def test_basic_pricing():
+  """Test basic call and put pricing."""
+  print("\n" + "="*60)
+  print("TEST 1: Basic Call and Put Pricing")
+  print("="*60)
+    
+  engine_call = Vanilla(option='call', rng=np.random.default_rng(42))
+  engine_put = Vanilla(option='put', rng=np.random.default_rng(42))
+    
+  params = {
+        'S': 100,
+        'K': 100,
+        'r': 0.05,
+        'sigma': 0.2,
+        'T': 1.0,
+        'n_sims': 100000
+    }
+    
+  call_price = MonteCarloEngine.price(**params, method='plain')
+  put_price = MonteCarloEngine.price(**params, method='plain')
+    
+  print(f"ATM Call Price: ${call_price:.4f}")
+  print(f"ATM Put Price: ${put_price:.4f}")
+  print(f"Put-Call Parity Check: C - P = {call_price - put_price:.4f}") 
+  print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T']):.4f}")
+  print("✓ Test passed if values are close")
 
+  
          
