@@ -9,7 +9,7 @@ class Vanilla:
     (shape (n_paths, n_steps)) and returns the elementwise payoff.
     """
 
-    def __init__(self, K, T, option_type):
+    def __init__(self,name, K, T, option_type):
         if K <= 0:
             raise ValueError("K must be > 0")
         if T < 0:
@@ -17,6 +17,7 @@ class Vanilla:
 
         self.K = float(K)
         self.T = float(T)
+        
         opt = option_type.strip().lower()
         if opt in ("c", "call"):
             self.option_type = "call"
@@ -24,6 +25,8 @@ class Vanilla:
             self.option_type = "put"
         else:
             raise ValueError("option_type must be 'call' or 'put'")
+        
+        self.name = f'{name}-{self.option_type}'
 
     def payoff(self, ST):
         """Return payoff(s) given terminal price(s) ST.

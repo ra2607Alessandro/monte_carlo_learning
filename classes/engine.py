@@ -9,7 +9,7 @@ class MonteCarloEngine:
         else:
             self.rng = np.random.default_rng()
         
-    def price(self,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
+    def price(self,name,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
         if method == 'plain':
             Z = self.rng
         if method == 'antithetic':
@@ -26,9 +26,16 @@ class MonteCarloEngine:
         price = np.exp(- r*T)*np.mean(payoff)
         
         if return_payoffs:
-            return price,payoff
+            return {
+                'name': name,
+                'price':price,
+                'payoff':payoff
+                }
         else:
-            return price
+            return {
+                'name':name,
+                'price':price
+                }
 
     def bumps(self,S, r,sigma,Z,K,T):
         vanilla =Vanilla(K=K,T=T,option_type=self.option)
@@ -89,8 +96,8 @@ def test_basic_pricing():
         'T': 1.0,
         'n_sims': 100000
     }
-  engine_call = Vanilla(option='call', rng=np.random.default_rng(42),K=params['K'],T=params['T'])
-  engine_put = Vanilla(option='put', rng=np.random.default_rng(42),K=params['K'],T=params['T'])
+  engine_call = Vanilla(option='call',name='FX-swap', rng=np.random.default_rng(42),K=params['K'],T=params['T'])
+  engine_put = Vanilla(option='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
     
   call_price = MonteCarloEngine.price(**params, method='plain')
   put_price = MonteCarloEngine.price(**params, method='plain')
