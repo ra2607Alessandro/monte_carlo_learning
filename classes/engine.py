@@ -12,7 +12,7 @@ class MonteCarloEngine:
     def price(self,name,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
         if method == 'plain':
             Z = self.rng
-        if method == 'antithetic':
+        elif method == 'antithetic':
             arr = np.random.standard_normal((n_sims)/2)
             arr_simmetric = - arr
             Z = np.concatenate([arr,arr_simmetric])
@@ -20,25 +20,25 @@ class MonteCarloEngine:
             raise ValueError("method is either 'plain' or 'antithetic'")
         
         #pricing equation
-        vanilla =Vanilla(K=K,T=T,option_type=self.option)
+        vanilla =Vanilla(K=K,T=T,name=name,option_type=self.option)
         ST = vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
         
         if return_payoffs:
             return {
-                'name': name,
+                'name': vanilla.name,
                 'price':price,
                 'payoff':payoff
                 }
         else:
             return {
-                'name':name,
+                'name':vanilla.name,
                 'price':price
                 }
 
-    def bumps(self,S, r,sigma,Z,K,T):
-        vanilla =Vanilla(K=K,T=T,option_type=self.option)
+    def bumps(self,name,S, r,sigma,Z,K,T):
+        vanilla =Vanilla(K=K,T=T,name=name,option_type=self.option)
         h = S * 0.01
         vol_h = 0.01
         price_plus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r)
@@ -98,7 +98,7 @@ def test_basic_pricing():
     }
   
   vanilla_call = Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T'],)
-  vanilla_put = Vanilla(option_type='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
+  vanilla_put = Vanilla(option_type='put', name='FX-swap',K=params['K'],T=params['T'])
 
   engine_call= MonteCarloEngine(option=vanilla_call.option_type,rng=np.random.default_rng(42))
   engine_put= MonteCarloEngine(option=vanilla_put,rng=np.random.default_rng(42))
