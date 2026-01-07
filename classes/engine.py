@@ -1,5 +1,5 @@
 import numpy as np
-from vanilla_option import Vanilla as Vanilla
+from vanilla_option import Vanilla 
 class MonteCarloEngine:
 
     def __init__(self,option, rng = None):
@@ -86,7 +86,7 @@ def test_basic_pricing():
   print("TEST 1: Basic Call and Put Pricing")
   print("="*60)
     
- 
+   
     
   params = {
         'S': 100,
@@ -96,8 +96,8 @@ def test_basic_pricing():
         'T': 1.0,
         'n_sims': 100000
     }
-  engine_call = Vanilla(option='call',name='FX-swap', rng=np.random.default_rng(42),K=params['K'],T=params['T'])
-  engine_put = Vanilla(option='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
+  engine_call = Vanilla(option_type='call',name='FX-swap', rng=np.random.default_rng(42),K=params['K'],T=params['T'],)
+  engine_put = Vanilla(option_type='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
     
   call_price = MonteCarloEngine.price(**params, name=engine_call.name,method='plain')
   put_price = MonteCarloEngine.price(**params,name=engine_put.name, method='plain')
@@ -108,5 +108,6 @@ def test_basic_pricing():
   print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T']):.4f}")
   print("✓ Test passed if values are close")
 
-
+ax = test_basic_pricing()
+print(ax)
          
