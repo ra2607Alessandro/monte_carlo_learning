@@ -96,14 +96,18 @@ def test_basic_pricing():
         'T': 1.0,
         'n_sims': 100000
     }
-  engine_call = Vanilla(option_type='call',name='FX-swap', rng=np.random.default_rng(42),K=params['K'],T=params['T'],)
-  engine_put = Vanilla(option_type='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
+  
+  vanilla_call = Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T'],)
+  vanilla_put = Vanilla(option_type='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
+
+  engine_call= MonteCarloEngine(option=vanilla_call.option_type,rng=np.random.default_rng(42))
+  engine_put= MonteCarloEngine(option=vanilla_put,rng=np.random.default_rng(42))
     
-  call_price = MonteCarloEngine.price(**params, name=engine_call.name,method='plain')
-  put_price = MonteCarloEngine.price(**params,name=engine_put.name, method='plain')
+  call_price = engine_call.price(**params, name=vanilla_call.name,method='plain')
+  put_price = engine_put.price(**params,name=vanilla_put.name, method='plain')
     
-  print(f"ATM {engine_call.name} Price: ${call_price:.4f}")
-  print(f"ATM {engine_put.name} Price: ${put_price:.4f}")
+  print(f"ATM {vanilla_call.name} Price: ${call_price:.4f}")
+  print(f"ATM {vanilla_put.name} Price: ${put_price:.4f}")
   print(f"Put-Call Parity Check: C - P = {call_price - put_price:.4f}") 
   print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T']):.4f}")
   print("✓ Test passed if values are close")
