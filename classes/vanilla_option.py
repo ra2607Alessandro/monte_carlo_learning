@@ -18,7 +18,7 @@ class Vanilla:
         self.K = float(K)
         self.T = float(T)
         
-        opt = option_type.strip().lower()
+        opt = option_type.lower()
         if opt in ("c", "call"):
             self.option_type = "call"
         elif opt in ("p", "put"):

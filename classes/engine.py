@@ -2,43 +2,44 @@ import numpy as np
 from vanilla_option import Vanilla 
 class MonteCarloEngine:
 
-    def __init__(self,option, rng = None):
+    def __init__(self,name,option, rng = None):
         self.option = option
+        self.name = name
         if not rng == None:
             self.rng = rng
         else:
             self.rng = np.random.default_rng()
         
-    def price(self,name,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
+    def price(self,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
         if method == 'plain':
-            Z = self.rng
+            Z = np.random.standard_normal(size=n_sims)
         elif method == 'antithetic':
-            arr = np.random.standard_normal((n_sims)/2)
+            arr = np.random.standard_normal(size=(n_sims)/2)
             arr_simmetric = - arr
             Z = np.concatenate([arr,arr_simmetric])
         else:
             raise ValueError("method is either 'plain' or 'antithetic'")
         
         #pricing equation
-        vanilla =Vanilla(K=K,T=T,name=name,option_type=self.option)
+        vanilla =Vanilla(K=K,T=T,name=self.name,option_type=self.option)
         ST = vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
         
         if return_payoffs:
             return {
-                'name': vanilla.name,
+                'name': self.name,
                 'price':price,
                 'payoff':payoff
                 }
         else:
             return {
-                'name':vanilla.name,
+                'name':self.name,
                 'price':price
                 }
 
-    def bumps(self,name,S, r,sigma,Z,K,T):
-        vanilla =Vanilla(K=K,T=T,name=name,option_type=self.option)
+    def bumps(self,S, r,sigma,Z,K,T):
+        vanilla =Vanilla(K=K,T=T,name=self.name,option_type=self.option)
         h = S * 0.01
         vol_h = 0.01
         price_plus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r)
@@ -58,7 +59,7 @@ class MonteCarloEngine:
     
     def greeks(self,greek,S,r,sigma,n_sims):
         # Use same random shocks for all bumps (variance reduction) just like you did in antitethic in the price class
-        Z = np.random.standard_normal(n_sims) 
+        Z = np.random.normal(n_sims) 
 
         prices = self.bumps(S, r,sigma,Z)
         if greek.lower() == 'delta':
@@ -100,11 +101,11 @@ def test_basic_pricing():
   vanilla_call = Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T'],)
   vanilla_put = Vanilla(option_type='put', name='FX-swap',K=params['K'],T=params['T'])
 
-  engine_call= MonteCarloEngine(option=vanilla_call.option_type,rng=np.random.default_rng(42))
-  engine_put= MonteCarloEngine(option=vanilla_put,rng=np.random.default_rng(42))
+  engine_call= MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42))
+  engine_put= MonteCarloEngine(option=vanilla_put,name=vanilla_put.name,rng=np.random.default_rng(42))
     
-  call_price = engine_call.price(**params, name=vanilla_call.name,method='plain')
-  put_price = engine_put.price(**params,name=vanilla_put.name, method='plain')
+  call_price = engine_call.price(**params,method='plain')
+  put_price = engine_put.price(**params, method='plain')
     
   print(f"ATM {vanilla_call.name} Price: ${call_price:.4f}")
   print(f"ATM {vanilla_put.name} Price: ${put_price:.4f}")
