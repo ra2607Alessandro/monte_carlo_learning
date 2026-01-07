@@ -99,11 +99,11 @@ def test_basic_pricing():
   engine_call = Vanilla(option='call',name='FX-swap', rng=np.random.default_rng(42),K=params['K'],T=params['T'])
   engine_put = Vanilla(option='put', name='FX-swap',rng=np.random.default_rng(42),K=params['K'],T=params['T'])
     
-  call_price = MonteCarloEngine.price(**params, method='plain')
-  put_price = MonteCarloEngine.price(**params, method='plain')
+  call_price = MonteCarloEngine.price(**params, name=engine_call.name,method='plain')
+  put_price = MonteCarloEngine.price(**params,name=engine_put.name, method='plain')
     
-  print(f"ATM Call Price: ${call_price:.4f}")
-  print(f"ATM Put Price: ${put_price:.4f}")
+  print(f"ATM {engine_call.name} Price: ${call_price:.4f}")
+  print(f"ATM {engine_put.name} Price: ${put_price:.4f}")
   print(f"Put-Call Parity Check: C - P = {call_price - put_price:.4f}") 
   print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T']):.4f}")
   print("✓ Test passed if values are close")
