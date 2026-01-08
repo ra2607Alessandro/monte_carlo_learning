@@ -141,32 +141,27 @@ def test_greeks():
     gamma = engine.greeks('gamma', **params)
     vega = engine.greeks('vega', **params)
     
-    print(f"Delta: {delta:.4f}")
-    print(f"Gamma: {gamma:.6f}")
-    print(f"Vega: {vega:.4f}")
+    print(f"Delta: {delta}")
+    print(f"Gamma: {gamma}")
+    print(f"Vega: {vega}")
     
-    print("\nBlack-Scholes Theoretical Values (ATM Call):")
-    print("  Delta: ~0.6368")
-    print("  Gamma: ~0.0198")
-    print("  Vega: ~39.74")
+    #print("\nBlack-Scholes Theoretical Values (ATM Call):")
+    #print("  Delta: ~0.6368")
+    #print("  Gamma: ~0.0198")
+    #print("  Vega: ~39.74")
     
-    # Check if values are in reasonable range
-    checks = []
-    checks.append(("Delta", 0.55 <= delta <= 0.70, delta))
-    checks.append(("Gamma", 0.015 <= gamma <= 0.025, gamma))
-    checks.append(("Vega", 35 <= vega <= 45, vega))
-    
-    print("\nValidation:")
-    all_passed = True
-    for name, passed, value in checks:
-        status = "✅" if passed else "❌"
-        print(f"  {status} {name}: {value:.4f}")
-        all_passed = all_passed and passed
-    
-    if all_passed:
-        print("\n✅ All Greeks PASSED")
+    if 0.55 <= delta <= 0.70:
+        print("✅Delta Passed")
+    else: 
+        print("❌Delta did not Pass")
+    if 0.015 <= gamma <= 0.025 :
+        print("✅Gamma Passed") 
     else:
-        print("\n❌ Some Greeks out of expected range")
+        print("❌Gamma did not Pass")
+    if 35 <= vega <= 45:
+        print("✅Vega Passed")
+    else:
+        print("❌Vega did not pass")
     
     return {'delta': delta, 'gamma': gamma, 'vega': vega}
 
