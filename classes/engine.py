@@ -83,9 +83,9 @@ class MonteCarloEngine:
     
 def test_basic_pricing():
   """Test basic call and put pricing."""
-  print("\n" + "="*60)
-  print("TEST 1: Basic Call and Put Pricing")
-  print("="*60)
+  #print("\n" + "="*60)
+  #print("TEST 1: Basic Call and Put Pricing")
+  #print("="*60)
     
    
     
@@ -107,14 +107,14 @@ def test_basic_pricing():
   call_price = engine_call.price(**params,method='plain')
   put_price = engine_put.price(**params, method='plain')
     
-  print(f"ATM {vanilla_call.name} Price: ${call_price}")
-  print(f"ATM {vanilla_put.name} Price: ${put_price}")
-  print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
-  print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
-  print("✓ Test passed if values are close")
+  #print(f"ATM {vanilla_call.name} Price: ${call_price}")
+  #print(f"ATM {vanilla_put.name} Price: ${put_price}")
+  #print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
+  #print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
+  #print("✓ Test passed if values are close")
 
-ax = test_basic_pricing()
-
+#ax = test_basic_pricing()
+       
 
 def test_greeks():
     """Test Greeks calculation."""
@@ -169,6 +169,9 @@ def test_greeks():
         print("\n❌ Some Greeks out of expected range")
     
     return {'delta': delta, 'gamma': gamma, 'vega': vega}
+
+greeks = test_greeks()
+print(greeks)
 
 
          
