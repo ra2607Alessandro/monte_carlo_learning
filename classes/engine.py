@@ -98,14 +98,14 @@ def test_basic_pricing():
         'n_sims': 100000
     }
   
-  vanilla_call = Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T'],)
-  vanilla_put = Vanilla(option_type='put', name='FX-swap',K=params['K'],T=params['T'])
+  vanilla_call = float(Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T']))
+  vanilla_put = float(Vanilla(option_type='put', name='FX-swap',K=params['K'],T=params['T']))
 
-  engine_call= MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42))
-  engine_put= MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42))
+  engine_call= float(MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42)))
+  engine_put= float(MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42)))
     
-  call_price = engine_call.price(**params,method='plain')
-  put_price = engine_put.price(**params, method='plain')
+  call_price = float(engine_call.price(**params,method='plain'))
+  put_price = float(engine_put.price(**params, method='plain'))
     
   #print(f"ATM {vanilla_call.name} Price: ${call_price}")
   #print(f"ATM {vanilla_put.name} Price: ${put_price}")
@@ -163,7 +163,7 @@ def test_greeks():
     else:
         print("❌Vega did not pass")
     
-    return {'delta': delta, 'gamma': gamma, 'vega': vega}
+    return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega)}
 
 greeks = test_greeks()
 print(greeks)
