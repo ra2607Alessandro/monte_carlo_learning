@@ -37,6 +37,8 @@ class MonteCarloEngine:
                 'name':self.name,
                 'price':price
                 }
+    def SE():
+        #implement a standard error deviation
 
     def bumps(self,S, r,sigma,Z,K,T):
         vanilla =Vanilla(K=K,T=T,name=self.name,option_type=self.option)
