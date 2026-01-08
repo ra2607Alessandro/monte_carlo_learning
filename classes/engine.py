@@ -42,11 +42,11 @@ class MonteCarloEngine:
         vanilla =Vanilla(K=K,T=T,name=self.name,option_type=self.option)
         h = S * 0.01
         vol_h = 0.01
-        price_plus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r)
-        price = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S ,r=r,sigma=sigma, Z=Z),r=r)
-        price_minus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S - h,r=r,sigma=sigma, Z=Z),r=r)
-        vol_plus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S ,r=r,sigma=sigma + vol_h, Z=Z),r=r)
-        vol_minus = vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S,r=r,sigma=sigma - vol_h, Z=Z),r=r)
+        price_plus = np.mean(vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S + h,r=r,sigma=sigma, Z=Z),r=r))
+        price = np.mean(vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S ,r=r,sigma=sigma, Z=Z),r=r))
+        price_minus = np.mean(vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S - h,r=r,sigma=sigma, Z=Z),r=r))
+        vol_plus = np.mean(vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S ,r=r,sigma=sigma + vol_h, Z=Z),r=r))
+        vol_minus = np.mean(vanilla.discounted_payoff(ST=vanilla.simulate_terminal(S=S,r=r,sigma=sigma - vol_h, Z=Z),r=r))
         return {
             'price bump' : h,
             'sigma bump' : vol_h,
@@ -64,17 +64,17 @@ class MonteCarloEngine:
         prices = self.bumps(S, r,sigma,Z,K=K,T=T)
         if greek.lower() == 'delta':
             # formula = (V*(S_o + h) - V*(S_o - h))/(2*h)
-            delta = (prices['price + bump'] - prices['price - bump'])/2*prices['price bump']
+            delta = (prices['price + bump'] - prices['price - bump'])/(2*prices['price bump'])
             return delta
 
         elif greek.lower() == 'gamma':
             # formula = (V*(S_o + h) - (2*(V)*(S_o) + V*(S_o - h) ))/ (h**2)
-            gamma = (prices['price + bump'] - 2*(prices['price']) + prices['price - bump'])/prices['price bump']**2
+            gamma = (prices['price + bump'] - 2*(prices['price']) + prices['price - bump'])/(prices['price bump']**2)
             return gamma
         
         elif greek.lower() == 'vega':
            # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
-           vega = (prices['sigma + bump'] - prices['sigma - bump'])/2*prices['sigma bump']
+           vega = (prices['sigma + bump'] - prices['sigma - bump'])/(2*prices['sigma bump'])
            return vega
 
         else:
