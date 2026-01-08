@@ -14,7 +14,7 @@ class MonteCarloEngine:
         if method == 'plain':
             Z = np.random.standard_normal(size=n_sims)
         elif method == 'antithetic':
-            arr = np.random.standard_normal(size=(n_sims)/2)
+            arr =  np.random.standard_normal(size=int((n_sims)/2))
             arr_simmetric = - arr
             Z = np.concatenate([arr,arr_simmetric])
         else:
@@ -59,7 +59,7 @@ class MonteCarloEngine:
     
     def greeks(self,greek,S,r,sigma,n_sims):
         # Use same random shocks for all bumps (variance reduction) just like you did in antitethic in the price class
-        Z = np.random.normal(n_sims) 
+        Z = self.rng.standard_normal(size=n_sims) 
 
         prices = self.bumps(S, r,sigma,Z)
         if greek.lower() == 'delta':
@@ -67,12 +67,12 @@ class MonteCarloEngine:
             delta = (prices['price + bump'] - prices['price - bump'])/2*prices['price bump']
             return delta
 
-        if greek.lower() == 'gamma':
+        elif greek.lower() == 'gamma':
             # formula = (V*(S_o + h) - (2*(V)*(S_o) + V*(S_o - h) ))/ (h**2)
             gamma = (prices['price + bump'] - 2*(prices['price']) + prices['price - bump'])/prices['price bump']**2
             return gamma
         
-        if greek.lower() == 'vega':
+        elif greek.lower() == 'vega':
            # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
            vega = (prices['sigma + bump'] - prices['sigma - bump'])/2*prices['sigma bump']
            return vega
@@ -114,5 +114,61 @@ def test_basic_pricing():
   print("✓ Test passed if values are close")
 
 ax = test_basic_pricing()
-print(ax)
+
+
+def test_greeks():
+    """Test Greeks calculation."""
+    print("\n" + "="*60)
+    print("TEST 2: Greeks Calculation")
+    print("="*60)
+    
+    params = {
+        'S': 100,
+        'K': 100,
+        'r': 0.05,
+        'sigma': 0.2,
+        'T': 1.0,
+        'n_sims': 100000
+    }
+    
+    engine = MonteCarloEngine(
+        option='call', 
+        name='Test', 
+        rng=np.random.default_rng(42)
+    )
+    
+    delta = engine.greeks('delta', **params)
+    gamma = engine.greeks('gamma', **params)
+    vega = engine.greeks('vega', **params)
+    
+    print(f"Delta: {delta:.4f}")
+    print(f"Gamma: {gamma:.6f}")
+    print(f"Vega: {vega:.4f}")
+    
+    print("\nBlack-Scholes Theoretical Values (ATM Call):")
+    print("  Delta: ~0.6368")
+    print("  Gamma: ~0.0198")
+    print("  Vega: ~39.74")
+    
+    # Check if values are in reasonable range
+    checks = []
+    checks.append(("Delta", 0.55 <= delta <= 0.70, delta))
+    checks.append(("Gamma", 0.015 <= gamma <= 0.025, gamma))
+    checks.append(("Vega", 35 <= vega <= 45, vega))
+    
+    print("\nValidation:")
+    all_passed = True
+    for name, passed, value in checks:
+        status = "✅" if passed else "❌"
+        print(f"  {status} {name}: {value:.4f}")
+        all_passed = all_passed and passed
+    
+    if all_passed:
+        print("\n✅ All Greeks PASSED")
+    else:
+        print("\n❌ Some Greeks out of expected range")
+    
+    return {'delta': delta, 'gamma': gamma, 'vega': vega}
+
+
          
