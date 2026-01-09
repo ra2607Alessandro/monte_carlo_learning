@@ -28,7 +28,7 @@ class MonteCarloEngine:
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
         discounted = Vanilla.discounted_payoff(ST=ST,r=r)
-        SE = self.SE(discounted_payoff=discounted,price=price,sigma=sigma,n_sims=n_sims)
+        SE = self.SE(discounted_payoff=discounted,price=price,,n_sims=n_sims)
         if return_payoffs:
             return {
                 'name': self.name,
@@ -43,11 +43,10 @@ class MonteCarloEngine:
                 'Standard Error Deviation':SE
                 }
     
-    def SE(self,discounted_payoff, price,sigma,n_sims):
+    def SE(self,discounted_payoff, price,n_sims):
         #implement a standard error deviation
         variance = np.sqrt(sum((discounted_payoff-price)**2)/(n_sims-1))
-        std = np.sqrt(variance)
-        SE = std/np.sqrt(n_sims)
+        SE = variance/np.sqrt(n_sims)
         return SE
 
 
