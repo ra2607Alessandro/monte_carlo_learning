@@ -25,8 +25,8 @@ class MonteCarloEngine:
         ST = vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
-        
-        SE = self.SE()
+        discounted = Vanilla.discounted_payoff(ST=ST,r=r)
+        SE = self.SE(discounted_payoff=discounted,price=price,sigma=sigma,n_sims=n_sims)
         if return_payoffs:
             return {
                 'name': self.name,
@@ -41,8 +41,10 @@ class MonteCarloEngine:
                 'Standard Error Deviation':SE
                 }
     
-    def SE(self,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
+    def SE(self,discounted_payoff, price,sigma,n_sims):
         #implement a standard error deviation
+        variance = np.sqrt(sum((discounted_payoff-price)**2)/(n_sims-1))
+        
 
     def bumps(self,S, r,sigma,Z,K,T):
         vanilla =Vanilla(K=K,T=T,name=self.name,option_type=self.option)
