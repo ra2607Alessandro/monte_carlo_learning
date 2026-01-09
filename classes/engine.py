@@ -28,7 +28,7 @@ class MonteCarloEngine:
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
         discounted = Vanilla.discounted_payoff(ST=ST,r=r)
-        SE = self.SE(discounted_payoff=discounted,price=price,,n_sims=n_sims)
+        SE = self.SE(discounted_payoff=discounted,price=price,n_sims=n_sims)
         if return_payoffs:
             return {
                 'name': self.name,
