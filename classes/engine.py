@@ -1,5 +1,7 @@
 import numpy as np
 from vanilla_option import Vanilla 
+import matplotlib.pyplot as plt
+
 class MonteCarloEngine:
 
     def __init__(self,name,option, rng = None):
@@ -90,6 +92,14 @@ class MonteCarloEngine:
 
         else:
             raise ValueError('greek can only be delta, gamma, vega')
+        
+    def plot(self,price):
+
+        plt.plot(price)
+        plt.xlabel("Number of Iterations")
+        plt.ylabel("Option Price")
+        plt.show()
+
        
     
 def test_basic_pricing():
