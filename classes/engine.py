@@ -26,18 +26,22 @@ class MonteCarloEngine:
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
         
+        SE = self.SE()
         if return_payoffs:
             return {
                 'name': self.name,
                 'price':price,
+                'Standard Error Deviation':SE,
                 'payoff':payoff
                 }
         else:
             return {
                 'name':self.name,
-                'price':price
+                'price':price,
+                'Standard Error Deviation':SE
                 }
-    def SE():
+    
+    def SE(self,S, r,sigma,K, T,n_sims,method ,return_payoffs = False):
         #implement a standard error deviation
 
     def bumps(self,S, r,sigma,Z,K,T):
