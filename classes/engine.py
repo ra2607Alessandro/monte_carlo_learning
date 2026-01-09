@@ -44,7 +44,10 @@ class MonteCarloEngine:
     def SE(self,discounted_payoff, price,sigma,n_sims):
         #implement a standard error deviation
         variance = np.sqrt(sum((discounted_payoff-price)**2)/(n_sims-1))
-        
+        std = np.sqrt(variance)
+        SE = std/np.sqrt(n_sims)
+        return SE
+
 
     def bumps(self,S, r,sigma,Z,K,T):
         vanilla =Vanilla(K=K,T=T,name=self.name,option_type=self.option)
