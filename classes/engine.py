@@ -1,6 +1,7 @@
 import numpy as np
 from vanilla_option import Vanilla 
 import matplotlib.pyplot as plt
+from scipy.stats import norm
 
 class MonteCarloEngine:
 
@@ -89,6 +90,12 @@ class MonteCarloEngine:
            # formula = (V*(sigma + h) - V*(sigma - h))/(2*h)
            vega = (prices['sigma + bump'] - prices['sigma - bump'])/(2*prices['sigma bump'])
            return vega
+        
+        elif greek.lower() == 'rho':
+        #formula:  K * t * N(d_2)
+            cumulative_distr = norm.cdf()
+            rho =  K * T * np.exp(-(r*T)) * cumulative_distr 
+            return rho
 
         else:
             raise ValueError('greek can only be delta, gamma, vega')
@@ -150,10 +157,9 @@ def test_basic_pricing():
     
   call_price = engine_call.price(**params,method='plain',return_payoffs=True)
   put_price = engine_put.price(**params, method='plain',return_payoffs=True)
-
+  
   plot_call= engine_call.plot_Convergence_Plot(call_price)
   plot_put= engine_put.plot_Convergence_Plot(put_price)
-  
     
   print(f"ATM {vanilla_call.name} Price: ${call_price}")
   print(f"ATM {vanilla_put.name} Price: ${put_price}")
