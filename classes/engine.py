@@ -27,20 +27,20 @@ class MonteCarloEngine:
         ST = vanilla.simulate_terminal(S=S,r=r,sigma=sigma,Z=Z)
         payoff = vanilla.payoff(ST=ST)
         price = np.exp(- r*T)*np.mean(payoff)
-        discounted = Vanilla.discounted_payoff(ST=ST,r=r)
+        discounted = vanilla.discounted_payoff(ST=ST,r=r)
         SE = self.SE(discounted_payoff=discounted,price=price,n_sims=n_sims)
         if return_payoffs:
             return {
                 'name': self.name,
-                'price':price,
-                'Standard Error Deviation':SE,
-                'payoff':payoff
+                'price':float(price),
+                'Standard Error Deviation': float(SE),
+                'payoff': float(payoff)
                 }
         else:
             return {
                 'name':self.name,
-                'price':price,
-                'Standard Error Deviation':SE
+                'price':float(price),
+                'Standard Error Deviation': float(SE)
                 }
     
     def SE(self,discounted_payoff, price,n_sims):
@@ -128,9 +128,9 @@ def test_basic_pricing():
   put_price = engine_put.price(**params, method='plain')
   
     
-  print(f"ATM {vanilla_call.name} Price: ${float(call_price)}")
-  print(f"ATM {vanilla_put.name} Price: ${float(put_price)}")
-  print(f"Put-Call Parity Check: C - P = {float(call_price['price']) - float(put_price['price'])}") 
+  print(f"ATM {vanilla_call.name} Price: ${call_price}")
+  print(f"ATM {vanilla_put.name} Price: ${put_price}")
+  print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
   print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
   print("✓ Test passed if values are close")
 
