@@ -93,7 +93,7 @@ class MonteCarloEngine:
         else:
             raise ValueError('greek can only be delta, gamma, vega')
         
-    def plot(self,price):
+    def plot_Convergence_Plot(self,price):
         # Accept either:
         # - dict returned by `price(..., return_payoffs=True)` containing 'discounted_payoffs'
         # - an array-like of (discounted) payoffs
@@ -151,8 +151,8 @@ def test_basic_pricing():
   call_price = engine_call.price(**params,method='plain',return_payoffs=True)
   put_price = engine_put.price(**params, method='plain',return_payoffs=True)
 
-  plot_call= engine_call.plot(call_price)
-  plot_put= engine_put.plot(put_price)
+  plot_call= engine_call.plot_Convergence_Plot(call_price)
+  plot_put= engine_put.plot_Convergence_Plot(put_price)
   
     
   print(f"ATM {vanilla_call.name} Price: ${call_price}")
@@ -160,7 +160,7 @@ def test_basic_pricing():
   print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
   print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
   print("✓ Test passed if values are close")
-  print(plot_call)
+  print(plot_put)
 
 ax = test_basic_pricing()
 print(ax)       
