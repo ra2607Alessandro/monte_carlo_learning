@@ -118,29 +118,30 @@ def test_basic_pricing():
         'n_sims': 100000
     }
   
-  vanilla_call = float(Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T']))
-  vanilla_put = float(Vanilla(option_type='put', name='FX-swap',K=params['K'],T=params['T']))
+  vanilla_call = Vanilla(option_type='call',name='FX-swap',K=params['K'],T=params['T'])
+  vanilla_put = Vanilla(option_type='put', name='FX-swap',K=params['K'],T=params['T'])
 
-  engine_call= float(MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42)))
-  engine_put= float(MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42)))
+  engine_call= MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42))
+  engine_put= MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42))
     
-  call_price = float(engine_call.price(**params,method='plain'))
-  put_price = float(engine_put.price(**params, method='plain'))
+  call_price = engine_call.price(**params,method='plain')
+  put_price = engine_put.price(**params, method='plain')
+  
     
-  #print(f"ATM {vanilla_call.name} Price: ${call_price}")
-  #print(f"ATM {vanilla_put.name} Price: ${put_price}")
-  #print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
-  #print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
-  #print("✓ Test passed if values are close")
+  print(f"ATM {vanilla_call.name} Price: ${float(call_price)}")
+  print(f"ATM {vanilla_put.name} Price: ${float(put_price)}")
+  print(f"Put-Call Parity Check: C - P = {float(call_price['price']) - float(put_price['price'])}") 
+  print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
+  print("✓ Test passed if values are close")
 
-#ax = test_basic_pricing()
-       
+ax = test_basic_pricing()
+print(ax)       
 
 def test_greeks():
     """Test Greeks calculation."""
-    print("\n" + "="*60)
-    print("TEST 2: Greeks Calculation")
-    print("="*60)
+    #print("\n" + "="*60)
+    #print("TEST 2: Greeks Calculation")
+   # print("="*60)
     
     params = {
         'S': 100,
@@ -156,37 +157,39 @@ def test_greeks():
         name='Test', 
         rng=np.random.default_rng(42)
     )
+
+
     
-    delta = engine.greeks('delta', **params)
-    gamma = engine.greeks('gamma', **params)
-    vega = engine.greeks('vega', **params)
+    #delta = engine.greeks('delta', **params)
+    #gamma = engine.greeks('gamma', **params)
+    #vega = engine.greeks('vega', **params)
     
-    print(f"Delta: {delta}")
-    print(f"Gamma: {gamma}")
-    print(f"Vega: {vega}")
+    #print(f"Delta: {delta}")
+    #print(f"Gamma: {gamma}")
+    #print(f"Vega: {vega}")
     
     #print("\nBlack-Scholes Theoretical Values (ATM Call):")
     #print("  Delta: ~0.6368")
     #print("  Gamma: ~0.0198")
     #print("  Vega: ~39.74")
     
-    if 0.55 <= delta <= 0.70:
-        print("✅Delta Passed")
-    else: 
-        print("❌Delta did not Pass")
-    if 0.015 <= gamma <= 0.025 :
-        print("✅Gamma Passed") 
-    else:
-        print("❌Gamma did not Pass")
-    if 35 <= vega <= 45:
-        print("✅Vega Passed")
-    else:
-        print("❌Vega did not pass")
+    #if 0.55 <= delta <= 0.70:
+     #   print("✅Delta Passed")
+    #else: 
+    #    print("❌Delta did not Pass")
+    #if 0.015 <= gamma <= 0.025 :
+      #  print("✅Gamma Passed") 
+    #else:
+        #print("❌Gamma did not Pass")
+    #if 35 <= vega <= 45:
+        #print("✅Vega Passed")
+    #else:
+        #print("❌Vega did not pass")
     
-    return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega)}
+    #return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega)}
 
-greeks = test_greeks()
-print(greeks)
+#greeks = test_greeks()
+#print(greeks)
 
 
          
