@@ -110,7 +110,7 @@ class MonteCarloEngine:
                 discounted = None
 
         if discounted is None or discounted.size == 0:
-            print('No payoff array found to plot convergence. Call price(..., return_payoffs=True)')
+            print('No payoff array found to plot convergence.')
             return
 
         running_mean = np.cumsum(discounted) / np.arange(1, discounted.size + 1)
@@ -148,8 +148,8 @@ def test_basic_pricing():
   engine_call= MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42))
   engine_put= MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42))
     
-  call_price = engine_call.price(**params,method='plain')
-  put_price = engine_put.price(**params, method='plain')
+  call_price = engine_call.price(**params,method='plain',return_payoffs=True)
+  put_price = engine_put.price(**params, method='plain',return_payoffs=True)
 
   plot_call= engine_call.plot(call_price)
   plot_put= engine_put.plot(put_price)
