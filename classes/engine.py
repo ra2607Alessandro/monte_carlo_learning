@@ -32,16 +32,17 @@ class MonteCarloEngine:
         if return_payoffs:
             return {
                 'name': self.name,
-                'price':float(price),
+                'price': float(price),
                 'Standard Error Deviation': float(SE),
-                'payoff': float(payoff)
-                }
+                'payoff': payoff,
+                'discounted_payoffs': discounted
+            }
         else:
             return {
-                'name':self.name,
-                'price':float(price),
+                'name': self.name,
+                'price': float(price),
                 'Standard Error Deviation': float(SE)
-                }
+            }
     
     def SE(self,discounted_payoff, price,n_sims):
         #implement a standard error deviation
@@ -93,13 +94,36 @@ class MonteCarloEngine:
             raise ValueError('greek can only be delta, gamma, vega')
         
     def plot(self,price):
+        # Accept either:
+        # - dict returned by `price(..., return_payoffs=True)` containing 'discounted_payoffs'
+        # - an array-like of (discounted) payoffs
+        discounted = None
+        if isinstance(price, dict):
+            if 'discounted_payoffs' in price:
+                discounted = np.asarray(price['discounted_payoffs'])
+            elif 'payoff' in price:
+                discounted = np.asarray(price['payoff']) * np.exp(-0)  # not discounted
+        else:
+            try:
+                discounted = np.asarray(price)
+            except Exception:
+                discounted = None
 
-        plt.plot(price)
+        if discounted is None or discounted.size == 0:
+            print('No payoff array found to plot convergence. Call price(..., return_payoffs=True)')
+            return
+
+        running_mean = np.cumsum(discounted) / np.arange(1, discounted.size + 1)
+
+        plt.figure(figsize=(8, 4))
+        plt.plot(running_mean, linewidth=1)
         plt.xlabel("Number of Iterations")
         plt.ylabel("Option Price")
+        plt.title(f"Convergence Plot: {self.name}")
+        plt.grid(alpha=0.3)
         plt.show()
 
-       
+        return running_mean
     
 def test_basic_pricing():
   """Test basic call and put pricing."""
@@ -126,6 +150,9 @@ def test_basic_pricing():
     
   call_price = engine_call.price(**params,method='plain')
   put_price = engine_put.price(**params, method='plain')
+
+  plot_call= engine_call.plot(call_price)
+  plot_put= engine_put.plot(put_price)
   
     
   print(f"ATM {vanilla_call.name} Price: ${call_price}")
@@ -133,6 +160,7 @@ def test_basic_pricing():
   print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
   print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
   print("✓ Test passed if values are close")
+  print(plot_call)
 
 ax = test_basic_pricing()
 print(ax)       
