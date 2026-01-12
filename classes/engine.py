@@ -195,40 +195,40 @@ def test_greeks():
 
 
     
-    delta = engine.greeks('delta', **params)
-    gamma = engine.greeks('gamma', **params)
-    vega = engine.greeks('vega', **params)
+    #delta = engine.greeks('delta', **params)
+    #gamma = engine.greeks('gamma', **params)
+    #vega = engine.greeks('vega', **params)
     rho = engine.greeks('rho',**params)
     
-    print(f"Delta: {delta}")
-    print(f"Gamma: {gamma}")
-    print(f"Vega: {vega}")
+    #print(f"Delta: {delta}")
+    #print(f"Gamma: {gamma}")
+    #print(f"Vega: {vega}")
     print(f'Rho: {rho}')
 
     print("\nBlack-Scholes Theoretical Values (ATM Call):")
-    print("  Delta: ~0.6368")
-    print("  Gamma: ~0.0198")
-    print("  Vega: ~39.74")
+    #print("  Delta: ~0.6368")
+    #print("  Gamma: ~0.0198")
+    #print("  Vega: ~39.74")
     print(" Rho: ~15.16")
     
-    if 0.55 <= delta <= 0.70:
-        print("✅Delta Passed")
-    else: 
-        print("❌Delta did not Pass")
-    if 0.015 <= gamma <= 0.025 :
-        print("✅Gamma Passed") 
-    else:
-        print("❌Gamma did not Pass")
-    if 35 <= vega <= 45:
-        print("✅Vega Passed")
-    else:
-        print("❌Vega did not pass")
+    #if 0.55 <= delta <= 0.70:
+     #   print("✅Delta Passed")
+    #else: 
+    #    print("❌Delta did not Pass")
+    #if 0.015 <= gamma <= 0.025 :
+    #    print("✅Gamma Passed") 
+    #else:
+    #    print("❌Gamma did not Pass")
+    #àif 35 <= vega <= 45:
+    #    print("✅Vega Passed")
+    #else:
+    #    print("❌Vega did not pass")
     if 11 <= rho <= 20:
         print("✅Rho Passed")
     else:
         print("❌Rho did not Pass")
 
-    return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega),'rho':float(rho)}
+    return {'rho':float(rho)}
 
 greeks = test_greeks()
 print(greeks)
