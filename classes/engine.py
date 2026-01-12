@@ -162,21 +162,21 @@ def test_basic_pricing():
   plot_call= engine_call.plot_Convergence_Plot(call_price)
   plot_put= engine_put.plot_Convergence_Plot(put_price)
     
-  print(f"ATM {vanilla_call.name} Price: ${call_price}")
-  print(f"ATM {vanilla_put.name} Price: ${put_price}")
-  print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
-  print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
-  print("✓ Test passed if values are close")
-  print(plot_put)
+  #print(f"ATM {vanilla_call.name} Price: ${call_price}")
+  #àprint(f"ATM {vanilla_put.name} Price: ${put_price}")
+  #print(f"Put-Call Parity Check: C - P = {call_price['price'] - put_price['price']}") 
+  #print(f"S - K*exp(-rT) = {params['S'] - params['K']*np.exp(-params['r']*params['T'])}")
+  #print("✓ Test passed if values are close")
+  #print(plot_put)
 
 ax = test_basic_pricing()
-print(ax)       
+#print(ax)       
 
 def test_greeks():
     """Test Greeks calculation."""
-    #print("\n" + "="*60)
-    #print("TEST 2: Greeks Calculation")
-   # print("="*60)
+    print("\n" + "="*60)
+    print("TEST 2: Greeks Calculation")
+    print("="*60)
     
     params = {
         'S': 100,
@@ -195,33 +195,39 @@ def test_greeks():
 
 
     
-    #delta = engine.greeks('delta', **params)
-    #gamma = engine.greeks('gamma', **params)
-    #vega = engine.greeks('vega', **params)
+    delta = engine.greeks('delta', **params)
+    gamma = engine.greeks('gamma', **params)
+    vega = engine.greeks('vega', **params)
+    rho = engine.greeks('rho',**params)
     
-    #print(f"Delta: {delta}")
-    #print(f"Gamma: {gamma}")
-    #print(f"Vega: {vega}")
+    print(f"Delta: {delta}")
+    print(f"Gamma: {gamma}")
+    print(f"Vega: {vega}")
+    print(f'Rho: {rho}')
+
+    print("\nBlack-Scholes Theoretical Values (ATM Call):")
+    print("  Delta: ~0.6368")
+    print("  Gamma: ~0.0198")
+    print("  Vega: ~39.74")
     
-    #print("\nBlack-Scholes Theoretical Values (ATM Call):")
-    #print("  Delta: ~0.6368")
-    #print("  Gamma: ~0.0198")
-    #print("  Vega: ~39.74")
-    
-    #if 0.55 <= delta <= 0.70:
-     #   print("✅Delta Passed")
-    #else: 
-    #    print("❌Delta did not Pass")
-    #if 0.015 <= gamma <= 0.025 :
-      #  print("✅Gamma Passed") 
-    #else:
-        #print("❌Gamma did not Pass")
-    #if 35 <= vega <= 45:
-        #print("✅Vega Passed")
-    #else:
-        #print("❌Vega did not pass")
-    
-    #return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega)}
+    if 0.55 <= delta <= 0.70:
+        print("✅Delta Passed")
+    else: 
+        print("❌Delta did not Pass")
+    if 0.015 <= gamma <= 0.025 :
+        print("✅Gamma Passed") 
+    else:
+        print("❌Gamma did not Pass")
+    if 35 <= vega <= 45:
+        print("✅Vega Passed")
+    else:
+        print("❌Vega did not pass")
+    if 4.0 <= rho <= 9.5:
+        print("✅Rho Passed")
+    else:
+        print("❌Rho did not Pass")
+
+    return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega),'rho':float(rho)}
 
 #greeks = test_greeks()
 #print(greeks)
