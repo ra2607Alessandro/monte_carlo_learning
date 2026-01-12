@@ -159,8 +159,8 @@ def test_basic_pricing():
   call_price = engine_call.price(**params,method='plain',return_payoffs=True)
   put_price = engine_put.price(**params, method='plain',return_payoffs=True)
   
-  plot_call= engine_call.plot_Convergence_Plot(call_price)
-  plot_put= engine_put.plot_Convergence_Plot(put_price)
+  #plot_call= engine_call.plot_Convergence_Plot(call_price)
+ # plot_put= engine_put.plot_Convergence_Plot(put_price)
     
   #print(f"ATM {vanilla_call.name} Price: ${call_price}")
   #àprint(f"ATM {vanilla_put.name} Price: ${put_price}")
@@ -169,7 +169,7 @@ def test_basic_pricing():
   #print("✓ Test passed if values are close")
   #print(plot_put)
 
-ax = test_basic_pricing()
+#ax = test_basic_pricing()
 #print(ax)       
 
 def test_greeks():
