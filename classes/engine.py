@@ -93,7 +93,7 @@ class MonteCarloEngine:
         
         elif greek.lower() == 'rho':
         #formula:  K * t * N(d_2)
-            d1 = sigma*np.sqrt(T)
+            d1 = -(sigma*np.sqrt(T))
             cumulative_distr = norm.cdf(d1-sigma*np.sqrt(T))
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
