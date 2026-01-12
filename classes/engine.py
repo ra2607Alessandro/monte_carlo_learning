@@ -1,7 +1,7 @@
 import numpy as np
 from vanilla_option import Vanilla 
 import matplotlib.pyplot as plt
-from scipy.stats import norm
+from scipy.stats import norm as norm
 
 class MonteCarloEngine:
 
@@ -93,12 +93,13 @@ class MonteCarloEngine:
         
         elif greek.lower() == 'rho':
         #formula:  K * t * N(d_2)
-            cumulative_distr = norm.cdf()
+            d1 = sigma*np.sqrt(T)
+            cumulative_distr = norm.cdf(d1-sigma*np.sqrt(T))
             rho =  K * T * np.exp(-(r*T)) * cumulative_distr 
             return rho
 
         else:
-            raise ValueError('greek can only be delta, gamma, vega')
+            raise ValueError('greek can only be delta, gamma, vega, rho')
         
     def plot_Convergence_Plot(self,price):
         # Accept either:
