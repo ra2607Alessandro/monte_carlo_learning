@@ -71,7 +71,7 @@ class MonteCarloEngine:
             'sigma - bump': vol_minus
         }
     
-    def greeks(self,greek,K,S,T,r,sigma,n_sims):
+    def greeks(self,greek,K,S,T,r,sigma,n_sims,option_type = None ):
         # Use same random shocks for all bumps (variance reduction) just like you did in antitethic in the price class
         Z = self.rng.standard_normal(size=n_sims) 
 
@@ -97,7 +97,16 @@ class MonteCarloEngine:
             cumulative_distr = norm.cdf(d1-sigma*np.sqrt(T))
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
-
+        elif greek.lower() == 'theta':
+            d1= (np.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
+            if not option_type == None:
+                if option_type.lower == 'call':
+                    #formulas in the article
+                elif option_type.lower == 'put':
+                    #formulas in the article
+                else:
+                    raise ValueError('option type can either call or put')
+        
         else:
             raise ValueError('greek can only be delta, gamma, vega, rho')
         
