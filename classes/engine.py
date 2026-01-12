@@ -95,7 +95,7 @@ class MonteCarloEngine:
         #formula:  K * t * N(d_2)
             d1 = sigma*np.sqrt(T)
             cumulative_distr = norm.cdf(d1-sigma*np.sqrt(T))
-            rho =  K * T * np.exp(-(r*T)) * cumulative_distr 
+            rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
 
         else:
@@ -179,10 +179,10 @@ def test_greeks():
     print("="*60)
     
     params = {
-        'S': 100,
-        'K': 100,
-        'r': 0.05,
-        'sigma': 0.2,
+        'S': 45,
+        'K': 50,
+        'r': 0.01,
+        'sigma': 0.25,
         'T': 1.0,
         'n_sims': 100000
     }
@@ -209,6 +209,7 @@ def test_greeks():
     print("  Delta: ~0.6368")
     print("  Gamma: ~0.0198")
     print("  Vega: ~39.74")
+    print(" Rho: ~15.16")
     
     if 0.55 <= delta <= 0.70:
         print("✅Delta Passed")
@@ -222,15 +223,15 @@ def test_greeks():
         print("✅Vega Passed")
     else:
         print("❌Vega did not pass")
-    if 4.0 <= rho <= 9.5:
+    if 11 <= rho <= 20:
         print("✅Rho Passed")
     else:
         print("❌Rho did not Pass")
 
     return {'delta': float(delta), 'gamma': float(gamma), 'vega': float(vega),'rho':float(rho)}
 
-#greeks = test_greeks()
-#print(greeks)
+greeks = test_greeks()
+print(greeks)
 
 
          
