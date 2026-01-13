@@ -100,7 +100,7 @@ class MonteCarloEngine:
             return rho
         elif greek.lower() == 'theta':
             d1= (math.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
-            density = norm.pdf(d1)
+            density = (np.exp(-(d1**2)/2))/np.sqrt(2*math.pi)
             d2 = (math.log(S/K)+(r-(sigma**2)/2)*T)/sigma*np.sqrt(T) 
             cum = norm.cdf( d2)
             if option_type:
