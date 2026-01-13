@@ -103,11 +103,11 @@ class MonteCarloEngine:
             if not option_type == None:
                 if option_type.lower == 'call':
                     #formulas in the article
-                    theta = -(S*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*norm.cdf(d1)
+                    theta = -(S*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*norm.cdf(d1 - sigma*np.sqrt(T))
                     return theta
                 elif option_type.lower == 'put':
                     #formulas in the article
-                    theta = -(S*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*norm.cdf(-d1)
+                    theta = -(S*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*norm.cdf(-(d1 - sigma*np.sqrt(T)))
                 else:
                     raise ValueError('option type can either call or put')
         
