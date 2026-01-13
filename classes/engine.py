@@ -175,8 +175,8 @@ def test_basic_pricing():
   theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
 
    
-  print(theta_call)
-  print(theta_put)
+  print('theta of call :',theta_call)
+  print('theta of put :',theta_put)
   
   #plot_call= engine_call.plot_Convergence_Plot(call_price)
  # plot_put= engine_put.plot_Convergence_Plot(put_price)
