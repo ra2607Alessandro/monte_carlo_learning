@@ -157,9 +157,9 @@ def test_basic_pricing():
   params = {
         'S': 100,
         'K': 100,
-        'r': 0.05,
+        'r': 0.01,
         'sigma': 0.2,
-        'T': 1.0,
+        'T': 90.0,
         'n_sims': 100000
     }
   
@@ -169,8 +169,12 @@ def test_basic_pricing():
   engine_call= MonteCarloEngine(option=vanilla_call.option_type,name=vanilla_call.name,rng=np.random.default_rng(42))
   engine_put= MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42))
     
-  call_price = engine_call.price(**params,method='plain',return_payoffs=True)
-  put_price = engine_put.price(**params, method='plain',return_payoffs=True)
+  theta_call = engine_call.greeks(**params,greek='theta',option_type=engine_call.option)
+  theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
+
+   
+  print(theta_call)
+  print(theta_put)
   
   #plot_call= engine_call.plot_Convergence_Plot(call_price)
  # plot_put= engine_put.plot_Convergence_Plot(put_price)
@@ -182,8 +186,8 @@ def test_basic_pricing():
   #print("✓ Test passed if values are close")
   #print(plot_put)
 
-#ax = test_basic_pricing()
-#print(ax)       
+ax = test_basic_pricing()
+print(ax)       
 
 def test_greeks():
     """Test Greeks calculation."""
@@ -216,13 +220,13 @@ def test_greeks():
     #print(f"Delta: {delta}")
     #print(f"Gamma: {gamma}")
     #print(f"Vega: {vega}")
-    print(f'Rho: {rho}')
+   # print(f'Rho: {rho}')
 
-    print("\nBlack-Scholes Theoretical Values (ATM Call):")
+   # print("\nBlack-Scholes Theoretical Values (ATM Call):")
     #print("  Delta: ~0.6368")
     #print("  Gamma: ~0.0198")
     #print("  Vega: ~39.74")
-    print(" Rho: ~15.16")
+    #print(" Rho: ~15.16")
     
     #if 0.55 <= delta <= 0.70:
      #   print("✅Delta Passed")
@@ -243,8 +247,8 @@ def test_greeks():
 
     return {'rho':float(rho)}
 
-greeks = test_greeks()
-print(greeks)
+#àgreeks = test_greeks()
+#print(greeks)
 
 
          
