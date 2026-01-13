@@ -1,6 +1,7 @@
 import numpy as np
 from vanilla_option import Vanilla 
 import matplotlib.pyplot as plt
+import math
 from scipy.stats import norm as norm
 
 class MonteCarloEngine:
@@ -98,7 +99,7 @@ class MonteCarloEngine:
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
         elif greek.lower() == 'theta':
-            d1= (np.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
+            d1= (math.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
             density = norm.pdf(d1)
             if option_type:
                 if option_type.lower() == 'call':
@@ -161,7 +162,7 @@ def test_basic_pricing():
         'K': 100,
         'r': 0.01,
         'sigma': 0.2,
-        'T': 90.0,
+        'T': (90/365),
         'n_sims': 100000
     }
   
@@ -175,8 +176,8 @@ def test_basic_pricing():
   theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
 
    
-  print('theta of call :',theta_call)
-  print('theta of put :',theta_put)
+  print('theta of call :',theta_call)#wrong 
+  print('theta of put :',theta_put)#wrong
   
   #plot_call= engine_call.plot_Convergence_Plot(call_price)
  # plot_put= engine_put.plot_Convergence_Plot(put_price)
