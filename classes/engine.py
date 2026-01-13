@@ -99,11 +99,15 @@ class MonteCarloEngine:
             return rho
         elif greek.lower() == 'theta':
             d1= (np.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
+            density = norm.pdf(d1)
             if not option_type == None:
                 if option_type.lower == 'call':
                     #formulas in the article
+                    theta = -(S*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*norm.cdf(d1)
+                    return theta
                 elif option_type.lower == 'put':
                     #formulas in the article
+                    theta = -(S*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*norm.cdf(-d1)
                 else:
                     raise ValueError('option type can either call or put')
         
