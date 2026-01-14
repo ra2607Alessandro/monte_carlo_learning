@@ -99,7 +99,7 @@ class MonteCarloEngine:
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
         elif greek.lower() == 'theta':
-            d1= (math.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
+            d1= (math.log(S0/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
             density = (np.exp(-(d1**2)/2))/np.sqrt(2*math.pi)
             d2 = (math.log(S0/K)+(r-(sigma**2)/2)*T)/sigma*np.sqrt(T) 
             cum = norm.cdf( d2)
@@ -107,14 +107,22 @@ class MonteCarloEngine:
             if option_type:
                 if option_type.lower() == 'call':
                     #formulas in the article
-                    theta = -(S0*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*cum
-                    return theta
+                    theta_per_year = -(S0*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*cum
+                   
                 elif option_type.lower() == 'put':
                     #formulas in the article
-                    theta = -(S0*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*(1 - cum)
-                    return theta
+                    theta_per_year = -(S0*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*(1 - cum)
+                  
                 else:
                     raise ValueError(f'option type can either call or put, not {option_type.lower()}')
+                
+                return {
+
+                    f'theta per year of {option_type.lower()}: {theta_per_year:.4f}',
+                    f'theta per day of {option_type.lower()}: {(theta_per_year/252.0)*100 : .4f}'
+
+                    }
+                
             else:
                 raise ValueError("You forgot to insert the option type (put or call)")
         
@@ -178,11 +186,11 @@ def test_basic_pricing():
   engine_put= MonteCarloEngine(option=vanilla_put.option_type,name=vanilla_put.name,rng=np.random.default_rng(42))
     
   theta_call = engine_call.greeks(**params,greek='theta',option_type=engine_call.option)
-  theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
+  #theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
 
    
-  print('theta of call :',theta_call)
-  print('theta of put :',theta_put)
+  print(theta_call)
+  ##print(theta_put)
   
   #plot_call= engine_call.plot_Convergence_Plot(call_price)
  # plot_put= engine_put.plot_Convergence_Plot(put_price)
