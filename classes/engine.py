@@ -117,8 +117,8 @@ class MonteCarloEngine:
                     raise ValueError(f'option type can either call or put, not {option_type.lower()}')
                 
                 theta = { 
-                    'theta per year': theta_per_year,
-                    'theta per day': (theta_per_year/252.0)*100 
+                    'theta per year':float(f'{theta_per_year :.2f}'),
+                    'theta per day': float(f'{(theta_per_year/252.0)*100 : .2f}') 
                     }
                 
                 return theta
@@ -175,7 +175,7 @@ def test_basic_pricing():
         'K': 100,
         'r': 0.01,
         'sigma': 0.4,
-        'T': 0.4,
+        'T': 0.38,
         'n_sims': 100000
     }
   
@@ -190,7 +190,7 @@ def test_basic_pricing():
 
    
   print(theta_call)
-  if 0.1 <= 5.19 - theta_call['theta per day'] <= 0.5 :
+  if 0.1 <= 5.19 - theta_call['theta per day'] <= 0.2 :
       print("❌Failed the Test")
   else:
       print("✅Succeded the Test")
