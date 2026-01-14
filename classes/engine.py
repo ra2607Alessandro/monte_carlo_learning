@@ -72,7 +72,7 @@ class MonteCarloEngine:
             'sigma - bump': vol_minus
         }
     
-    def greeks(self,greek,K,S,T,r,sigma,n_sims,option_type = None ):
+    def greeks(self,greek,K,S,S0,T,r,sigma,n_sims,option_type = None ):
         # Use same random shocks for all bumps (variance reduction) just like you did in antitethic in the price class
         Z = self.rng.standard_normal(size=n_sims) 
 
@@ -101,17 +101,17 @@ class MonteCarloEngine:
         elif greek.lower() == 'theta':
             d1= (math.log(S/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
             density = (np.exp(-(d1**2)/2))/np.sqrt(2*math.pi)
-            d2 = (math.log(S/K)+(r-(sigma**2)/2)*T)/sigma*np.sqrt(T) 
+            d2 = (math.log(S0/K)+(r-(sigma**2)/2)*T)/sigma*np.sqrt(T) 
             cum = norm.cdf( d2)
           
             if option_type:
                 if option_type.lower() == 'call':
                     #formulas in the article
-                    theta = -(S*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*cum
+                    theta = -(S0*sigma*density)/(2*np.sqrt(T)) - r*K*np.exp(-r*T)*cum
                     return theta
                 elif option_type.lower() == 'put':
                     #formulas in the article
-                    theta = -(S*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*(1 - cum)
+                    theta = -(S0*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*(1 - cum)
                     return theta
                 else:
                     raise ValueError(f'option type can either call or put, not {option_type.lower()}')
@@ -163,6 +163,7 @@ def test_basic_pricing():
     
   params = {
         'S': 100,
+        'S0': 100,        
         'K': 100,
         'r': 0.01,
         'sigma': 0.4,
@@ -180,8 +181,8 @@ def test_basic_pricing():
   theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
 
    
-  print('theta of call :',theta_call)#wrong 
-  print('theta of put :',theta_put)#wrong
+  print('theta of call :',theta_call)
+  print('theta of put :',theta_put)
   
   #plot_call= engine_call.plot_Convergence_Plot(call_price)
  # plot_put= engine_put.plot_Convergence_Plot(put_price)
