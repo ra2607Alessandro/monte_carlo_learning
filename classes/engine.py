@@ -116,12 +116,12 @@ class MonteCarloEngine:
                 else:
                     raise ValueError(f'option type can either call or put, not {option_type.lower()}')
                 
-                return {
-
-                    f'theta per year of {option_type.lower()}: {theta_per_year:.4f}',
-                    f'theta per day of {option_type.lower()}: {(theta_per_year/252.0)*100 : .4f}'
-
+                theta = { 
+                    'theta per year': theta_per_year,
+                    'theta per day': (theta_per_year/252.0)*100 
                     }
+                
+                return theta
                 
             else:
                 raise ValueError("You forgot to insert the option type (put or call)")
@@ -190,6 +190,10 @@ def test_basic_pricing():
 
    
   print(theta_call)
+  if 0.1 <= 5.19 - theta_call['theta per day'] <= 0.5 :
+      print("❌Failed the Test")
+  else:
+      print("✅Succeded the Test")
   ##print(theta_put)
   
   #plot_call= engine_call.plot_Convergence_Plot(call_price)
