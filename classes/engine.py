@@ -103,6 +103,7 @@ class MonteCarloEngine:
             density = (np.exp(-(d1**2)/2))/np.sqrt(2*math.pi)
             d2 = (math.log(S/K)+(r-(sigma**2)/2)*T)/sigma*np.sqrt(T) 
             cum = norm.cdf( d2)
+          
             if option_type:
                 if option_type.lower() == 'call':
                     #formulas in the article
@@ -110,7 +111,8 @@ class MonteCarloEngine:
                     return theta
                 elif option_type.lower() == 'put':
                     #formulas in the article
-                    theta = -(S*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*norm.cdf(1 - cum)
+                    theta = -(S*sigma*density)/(2*np.sqrt(T)) + r*K*np.exp(-r*T)*(1 - cum)
+                    return theta
                 else:
                     raise ValueError(f'option type can either call or put, not {option_type.lower()}')
             else:
@@ -163,8 +165,8 @@ def test_basic_pricing():
         'S': 100,
         'K': 100,
         'r': 0.01,
-        'sigma': 0.2,
-        'T': (90/365),
+        'sigma': 0.4,
+        'T': 0.4,
         'n_sims': 100000
     }
   
