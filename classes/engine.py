@@ -99,6 +99,7 @@ class MonteCarloEngine:
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
         elif greek.lower() == 'theta':
+            #theta decreases as T descreases for the value decay gets faster as expiration date gets closer
             d1= (np.log(S0/K)+(r+((sigma**2)*0.5))*T)/(sigma*np.sqrt(T))
             density = (np.exp(-(d1**2)/2))/(np.sqrt(2*math.pi))
             d2 = d1 - (sigma*np.sqrt(T))
@@ -176,7 +177,7 @@ def test_basic_pricing():
         'K': 100,
         'r': 0.01,
         'sigma': 0.4,
-        'T': 0.35,
+        'T': 0.38,
         'n_sims': 100000
     }
   
