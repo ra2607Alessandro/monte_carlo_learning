@@ -99,9 +99,9 @@ class MonteCarloEngine:
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
         elif greek.lower() == 'theta':
-            d1= (math.log(S0/K)+(r+(sigma**2)/2)*T)/sigma*np.sqrt(T)
+            d1= (math.log(S0/K)+(r+(sigma**2)/2)*T)/(sigma*np.sqrt(T))
             density = (np.exp(-(d1**2)/2))/np.sqrt(2*math.pi)
-            d2 = (math.log(S0/K)+(r-(sigma**2)/2)*T)/sigma*np.sqrt(T) 
+            d2 = (math.log(S0/K)+(r-(sigma**2)/2)*T)/(sigma*np.sqrt(T))
             cum = norm.cdf( d2)
           
             if option_type:
@@ -116,12 +116,12 @@ class MonteCarloEngine:
                 else:
                     raise ValueError(f'option type can either call or put, not {option_type.lower()}')
                 
-                theta = { 
-                    'theta per year':float(f'{theta_per_year :.2f}'),
-                    'theta per day': float(f'{(theta_per_year/252.0)*100 : .2f}') 
-                    }
-                
-                return theta
+                theta_per_day = (theta_per_year/252.0)*100
+                return {
+                    'theta per year': float(theta_per_year),
+                    'theta per day': float(theta_per_day)
+
+                }
                 
             else:
                 raise ValueError("You forgot to insert the option type (put or call)")
