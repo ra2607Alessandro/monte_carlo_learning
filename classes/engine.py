@@ -99,10 +99,11 @@ class MonteCarloEngine:
             rho =  K * T * np.exp(-r*T) * cumulative_distr 
             return rho
         elif greek.lower() == 'theta':
-            d1= (math.log(S0/K)+(r+(sigma**2)/2)*T)/(sigma*np.sqrt(T))
-            density = (np.exp(-(d1**2)/2))/np.sqrt(2*math.pi)
-            d2 = (math.log(S0/K)+(r-(sigma**2)/2)*T)/(sigma*np.sqrt(T))
-            cum = norm.cdf( d2)
+            d1= (np.log(S0/K)+(r+((sigma**2)*0.5))*T)/(sigma*np.sqrt(T))
+            density = (np.exp(-(d1**2)/2))/(np.sqrt(2*math.pi))
+            d2 = d1 - (sigma*np.sqrt(T))
+            #(np.log(S0/K)+(r-((sigma**2)*0.5))*T)/(sigma*np.sqrt(T))
+            cum = norm.cdf(d2)
           
             if option_type:
                 if option_type.lower() == 'call':
@@ -188,7 +189,8 @@ def test_basic_pricing():
   theta_call = engine_call.greeks(**params,greek='theta',option_type=engine_call.option)
   #theta_put = engine_put.greeks(**params,greek='theta',option_type=engine_put.option)
 
-   
+   #5.48 with T = 0.35
+   #
   print(theta_call)
   #if 0.1 <= 5.19 - theta_call['theta per day'] <= 0.2 :
    #   print("❌Failed the Test")
