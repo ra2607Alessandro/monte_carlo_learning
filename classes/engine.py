@@ -142,9 +142,20 @@ class MonteCarloEngine:
           error = BS_price - market_price
           if error == tolerance:
               vega = self.greeks(greek='vega',S0=S,S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000)
-              sigma_guess = sigma_guess - (error/vega)
-              return sigma_guess
-          
+              if vega == 0:
+                  return None
+              else :
+                  sigma_guess = sigma_guess - (error/vega)
+                  return sigma_guess
+          elif error < tolerance:
+              sigma_guess = sigma_guess + 0.01
+              BS_price = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
+              iterations = iterations + 1
+          elif error > tolerance:
+              sigma_guess = sigma_guess - 0.01
+              BS_price = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
+              iterations = iterations + 1
+
 
         return sigma_guess
         
