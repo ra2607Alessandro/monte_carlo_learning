@@ -156,8 +156,10 @@ class MonteCarloEngine:
               BS_price = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
               iterations = iterations + 1
 
-
-        return sigma_guess
+        if iterations == 50:
+            raise ValueError("failed the calculation of implied volatility, excedeed the time limit")
+        else: 
+          return sigma_guess
         
     def plot_Convergence_Plot(self,price):
         # Accept either:
