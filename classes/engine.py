@@ -132,9 +132,16 @@ class MonteCarloEngine:
             raise ValueError('greek can only be delta, gamma, vega, rho')
         
     def implied_volatility(self,sigma,market_price,S,K,T,r):
-        BS_price = self.price(S=S,r=r,sigma=sigma,K=K,T=T,n_sims=10000,method='antithetic')
-        vega = self.greeks(greek='vega',sigma=sigma,K=K,S=S,r=r,T=T)
-        return (BS_price['price'] - market_price)/vega
+        BS = self.price(S=S,r=r,sigma=sigma,K=K,T=T,n_sims=10000,method='antithetic')
+        BS_price = BS['price']
+        while BS_price - market_price < 0.01:
+
+          vega = self.greeks(greek='vega',sigma=sigma,K=K,S=S,r=r,T=T)
+          if BS_price > market_price:
+            sigma = sigma - 0.01
+          elif market_price > BS_price:
+            sigma
+        return (BS_price - market_price)/vega
         
     def plot_Convergence_Plot(self,price):
         # Accept either:
