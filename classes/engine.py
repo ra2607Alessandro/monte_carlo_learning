@@ -148,14 +148,11 @@ class MonteCarloEngine:
                   sigma_guess = sigma_guess - (error/vega)
                   return sigma_guess
          # make it a random thing in a range of sigma guess [0.00,0.05]
-          elif error < tolerance:
-              sigma_guess = sigma_guess + 0.01
+          else :
+              sigma_guess = np.random.choice(range(0.01,0.05))
               BS_price = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
               iterations = iterations + 1
-          elif error > tolerance:
-              sigma_guess = sigma_guess - 0.01
-              BS_price = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
-              iterations = iterations + 1
+         
 
         if iterations == 50:
             raise ValueError("failed the calculation of implied volatility, excedeed the time limit")
