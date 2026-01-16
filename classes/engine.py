@@ -137,11 +137,14 @@ class MonteCarloEngine:
         while BS_price - market_price < 0.01:
 
           vega = self.greeks(greek='vega',sigma=sigma,K=K,S=S,r=r,T=T)
+          sigma_new = sigma - (BS_price - market_price)/vega 
           if BS_price > market_price:
             sigma = sigma - 0.01
           elif market_price > BS_price:
-            sigma
-        return (BS_price - market_price)/vega
+            sigma = sigma + 0.01
+          
+
+        return sigma_new
         
     def plot_Convergence_Plot(self,price):
         # Accept either:
