@@ -131,6 +131,8 @@ class MonteCarloEngine:
         else:
             raise ValueError('greek can only be delta, gamma, vega, rho')
         
+    def implied_volatility(self,market_price,S,K,T,r):
+        
     def plot_Convergence_Plot(self,price):
         # Accept either:
         # - dict returned by `price(..., return_payoffs=True)` containing 'discounted_payoffs'
