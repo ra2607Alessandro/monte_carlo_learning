@@ -133,21 +133,20 @@ class MonteCarloEngine:
         
     def implied_volatility(self,sigma,market_price,S,K,T,r):
         iterations = 0
-        BS = self.price(S=S,r=r,sigma=sigma,K=K,T=T,n_sims=10000,method='antithetic')
+        sigma_guess = sigma
+        tolerance = 0.01
+        BS = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
         BS_price = BS['price']
-        while BS_price - market_price < 0.01 and iterations < 51:
 
-          vega = self.greeks(greek='vega',sigma=sigma,K=K,S=S,r=r,T=T)
-          sigma_new = sigma - (BS_price - market_price)/vega 
-          if BS_price > market_price:
-            sigma = sigma - 0.01
-            iterations = iterations + 1
-          elif market_price > BS_price:
-            sigma = sigma + 0.01
-            iterations = iterations + 1
+        while  iterations < 51:  
+          error = BS_price - market_price
+          if error == tolerance:
+              vega = self.greeks(greek='vega',S0=S,S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000)
+              sigma_guess = sigma_guess - (error/vega)
+              return sigma_guess
           
 
-        return sigma_new
+        return sigma_guess
         
     def plot_Convergence_Plot(self,price):
         # Accept either:
