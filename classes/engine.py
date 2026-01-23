@@ -135,14 +135,14 @@ class MonteCarloEngine:
     def implied_volatility(self, market_price, S, K, T, r, initial_guess=0.25):
      sigma_guess = initial_guess
      tolerance = 0.01  # $0.01 price accuracy
-     max_iterations = 50
+     max_iterations = 0
     
     # Edge case: Check if market price is valid
      intrinsic_value = max(S - K * np.exp(-r * T), 0) if self.option == 'call' else max(K * np.exp(-r * T) - S, 0)
      if market_price < intrinsic_value * 0.99:  # Allow tiny rounding
         return None  # Arbitrage exists, invalid price
     
-     for iteration in range(max_iterations):
+     while max_iterations < 51:
         # Calculate model price at current sigma guess
         BS = self.price(S=S, r=r, sigma=sigma_guess, K=K, T=T, 
                        n_sims=10000, method='antithetic')
@@ -162,7 +162,7 @@ class MonteCarloEngine:
         
         # Edge case: vega too small (deep ITM/OTM)
         if abs(vega) < 0.0001:
-            iteration = iteration + 1 
+          
             return None  # Can't reliably extract IV
         
         # Newton-Raphson update
@@ -252,8 +252,39 @@ def test_basic_pricing():
   #print("✓ Test passed if values are close")
   #print(plot_put)
 
-ax = test_basic_pricing()
-print(ax)       
+#àax = test_basic_pricing()
+#print(ax)   
+#
+
+def test_implied_vol():
+    # Create engine
+    engine = MonteCarloEngine(option='call', name='Test')
+    
+    # Known parameters
+    S, K, T, r = 100, 100, 1.0, 0.05
+    true_sigma = 0.30
+    
+    # Generate "market price" from known sigma
+    market_price = engine.price(S, r, true_sigma, K, T, 
+                                n_sims=50000, method='antithetic')['price']
+    
+    print(f"True sigma: {true_sigma}")
+    print(f"Market price: ${market_price:.2f}")
+    
+    # Try to recover sigma
+    recovered_sigma = engine.implied_volatility(
+        market_price=market_price, S=S, K=K, T=T, r=r
+    )
+    
+    print(f"Recovered sigma: {recovered_sigma}")
+    print(f"Error: {abs(recovered_sigma - true_sigma):.4f}")
+    
+    # Should be within 1% of true sigma
+    assert abs(recovered_sigma - true_sigma) < 0.01, "IV extraction failed!"
+    print("✅ Test passed!")
+
+ax = test_implied_vol()
+print(ax)    
 
 def test_greeks():
     """Test Greeks calculation."""
