@@ -131,33 +131,48 @@ class MonteCarloEngine:
         else:
             raise ValueError('greek can only be delta, gamma, vega, rho')
         
-    def implied_volatility(self,sigma,market_price,S,K,T,r):
-        iterations = 0
-        sigma_guess = sigma
-        tolerance = 0.01
-        BS = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
+    
+    def implied_volatility(self, market_price, S, K, T, r, initial_guess=0.25):
+     sigma_guess = initial_guess
+     tolerance = 0.01  # $0.01 price accuracy
+     max_iterations = 50
+    
+    # Edge case: Check if market price is valid
+     intrinsic_value = max(S - K * np.exp(-r * T), 0) if self.option == 'call' else max(K * np.exp(-r * T) - S, 0)
+     if market_price < intrinsic_value * 0.99:  # Allow tiny rounding
+        return None  # Arbitrage exists, invalid price
+    
+     for iteration in range(max_iterations):
+        # Calculate model price at current sigma guess
+        BS = self.price(S=S, r=r, sigma=sigma_guess, K=K, T=T, 
+                       n_sims=10000, method='antithetic')
         BS_price = BS['price']
-
-        while  iterations < 51:  
-          error = BS_price - market_price
-          if error == tolerance:
-              vega = self.greeks(greek='vega',S0=S,S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000)
-              if vega == 0:
-                  return None
-              else :
-                  sigma_guess = sigma_guess - (error/vega)
-                  return sigma_guess
-         # make it a random thing in a range of sigma guess [0.00,0.05]
-          else :
-              sigma_guess = np.random.choice(range(0.01,0.05))
-              BS_price = self.price(S=S,r=r,sigma=sigma_guess,K=K,T=T,n_sims=10000,method="antithetic")
-              iterations = iterations + 1
-         
-
-        if iterations == 50:
-            raise ValueError("failed the calculation of implied volatility, excedeed the time limit")
-        else: 
-          return sigma_guess
+        
+        # Calculate error
+        error = BS_price - market_price
+        
+        # Check convergence
+        if abs(error) < tolerance:
+           
+            return sigma_guess
+        
+        # Calculate vega (sensitivity to vol)
+        vega = self.greeks(greek='vega', S0=S, S=S, r=r, 
+                          sigma=sigma_guess, K=K, T=T, n_sims=10000)
+        
+        # Edge case: vega too small (deep ITM/OTM)
+        if abs(vega) < 0.0001:
+            iteration = iteration + 1 
+            return None  # Can't reliably extract IV
+        
+        # Newton-Raphson update
+        sigma_new = sigma_guess - (error / vega)
+        
+        # Clamp to reasonable bounds [1%, 500%]
+        sigma_guess = max(0.01, min(sigma_new, 5.0))
+    
+    # Failed to converge
+        return None
         
     def plot_Convergence_Plot(self,price):
         # Accept either:
