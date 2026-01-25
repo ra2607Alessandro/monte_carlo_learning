@@ -32,6 +32,11 @@ df['sma_200'] = MA(period=200,price=price)
 
 print("Latest price:", price.iloc[-1])
 for w in windows:
-    print(f"{w}-day annualized vol (latest): {df[f'vol_{w}d'].iloc[-1]:.4%}")
+    if w == 10:
+       col = f'vol_{w}d'
+       print(f"{w}-day annualized vol (latest): {df[col].iloc[-1]:.4%}")  
+       print(f'Daily Market Movemets: {df[col].iloc[-1]/np.sqrt(TRADING_DAYS):.4%}')
+    else: 
+      print(f"{w}-day annualized vol (latest): {df[f'vol_{w}d'].iloc[-1]:.4%}")
 print("SMA50 (latest):", df['sma_50'].iloc[-1])
 print("SMA200 (latest):", df['sma_200'].iloc[-1])
