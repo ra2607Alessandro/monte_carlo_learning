@@ -12,11 +12,15 @@ window = [10, 20, 60]
  
 for i in range(len(window)):
 
-    standard_deviation = df['log_ret'].rolling(i).std()
-    print(f'Standard deviation in {i}-days:{standard_deviation}') 
+      standard_deviation = df['log_ret'].rolling(i).std()
+      print(f'Standard deviation in {i}-days:{standard_deviation}') 
 
-   
+
+def MA(period,prices):
     
-
+          
 #calculate 50-day MA
+print(MA(period=50,prices=df))
+
 #calculate 200-day MA
+print(MA(period=200,prices=df))
