@@ -47,3 +47,11 @@ Latest_20d_annualized_vol_23 = 0.0049665
 Latest_60d_annualized_vol_23 = 0.0043330
 SMA50_23 = 1.1664539999999999
 SMA200_23 = 1.1592449999999999
+
+Latest_price_26 = 1.1869
+Latest_10d_annualized_vol_26= 0.0078071
+Daily_Market_Movemets_26= 0.0004918
+Latest_20d_annualized_vol_26 = 0.0062816
+Latest_60d_annualized_vol_23 = 0.0047283
+SMA50_26 = 1.167008
+SMA200_23 = 1.1595095
