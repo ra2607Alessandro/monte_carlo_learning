@@ -40,3 +40,4 @@ for w in windows:
       print(f"{w}-day annualized vol (latest): {df[f'vol_{w}d'].iloc[-1]:.4%}")
 print("SMA50 (latest):", df['sma_50'].iloc[-1])
 print("SMA200 (latest):", df['sma_200'].iloc[-1])
+
