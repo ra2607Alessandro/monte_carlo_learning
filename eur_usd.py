@@ -41,3 +41,9 @@ for w in windows:
 print("SMA50 (latest):", df['sma_50'].iloc[-1])
 print("SMA200 (latest):", df['sma_200'].iloc[-1])
 
+Latest_price_23 = 1.1743
+Latest_10d_annualized_vol_23 =  0.0064923
+Latest_20d_annualized_vol_23 = 0.0049665
+Latest_60d_annualized_vol_23 = 0.0043330
+SMA50_23 = 1.1664539999999999
+SMA200_23 = 1.1592449999999999
