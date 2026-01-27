@@ -69,3 +69,13 @@ def margin():
     print(f'Margin: {margin:.4%} ')
 
 margin()
+
+def differentials():
+    d1 = Latest_price_27 - Latest_price_26
+    print(f'Latest price difference: {d1}')
+    d2 = Latest_10d_annualized_vol_27 - Latest_10d_annualized_vol_26
+    print(f'10d annualized vol {d2:.4}')
+    d3 = Daily_Market_Movemets_27 - Daily_Market_Movemets_26
+    print(f'Daily Market Movements difference: {d3:.4f}')
+    d4 = Latest_20d_annualized_vol_27 - Latest_20d_annualized_vol_26
+    print(f'20d annualized vol: {d4:.4f}')
