@@ -52,6 +52,14 @@ Latest_price_26 = 1.1869
 Latest_10d_annualized_vol_26= 0.0078071
 Daily_Market_Movemets_26= 0.0004918
 Latest_20d_annualized_vol_26 = 0.0062816
-Latest_60d_annualized_vol_23 = 0.0047283
+Latest_60d_annualized_vol_26 = 0.0047283
 SMA50_26 = 1.167008
-SMA200_23 = 1.1595095
+SMA200_26 = 1.1595095
+
+Latest_price_27 = 1.1876
+Latest_10d_annualized_vol_27= 0.0077837
+Daily_Market_Movemets_27 = 0.0004903
+Latest_20d_annualized_vol_27 = 0.0062608
+Latest_60d_annualized_vol_27 = 0.0046854
+SMA50_27 = 1.167496
+SMA200_27 = 1.159801
