@@ -74,13 +74,13 @@ def differentials():
     d1 = Latest_price_27 - Latest_price_26
     print(f'Latest price difference: {d1}')
     d2 = Latest_10d_annualized_vol_27 - Latest_10d_annualized_vol_26
-    print(f'10d annualized vol difference:{d2:.4}')
+    print(f'10d annualized vol difference:{d2:.7f}')
     d3 = Daily_Market_Movemets_27 - Daily_Market_Movemets_26
-    print(f'Daily Market Movements difference: {d3:.4f}')
+    print(f'Daily Market Movements difference: {d3:.7f}')
     d4 = Latest_20d_annualized_vol_27 - Latest_20d_annualized_vol_26
-    print(f'20d annualized vol difference: {d4:.4f}')
+    print(f'20d annualized vol difference: {d4:.7f}')
     d5 = Latest_60d_annualized_vol_27 - Latest_60d_annualized_vol_26
-    print(f'60d annualized vol difference : {d5:.4f}')
+    print(f'60d annualized vol difference : {d5:.7f}')
     d6 = SMA50_27 - SMA50_26
     print(f'50 MA difference: {d6:.4f}')
     d7 = SMA200_27 - SMA200_26
