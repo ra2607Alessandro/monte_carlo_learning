@@ -56,34 +56,10 @@ Latest_60d_annualized_vol_26 = 0.0047283
 SMA50_26 = 1.167008
 SMA200_26 = 1.1595095
 
-Latest_price_27 = 1.1876
-Latest_10d_annualized_vol_27= 0.0077837
-Daily_Market_Movemets_27 = 0.0004903
-Latest_20d_annualized_vol_27 = 0.0062608
-Latest_60d_annualized_vol_27 = 0.0046854
-SMA50_27 = 1.167496
-SMA200_27 = 1.159801
-
-def margin():
-    margin = Daily_Market_Movemets_27*0.25
-    print(f'Margin: {margin:.4%} ')
-
-margin()
-
-def differentials():
-    d1 = Latest_price_27 - Latest_price_26
-    print(f'Latest price difference: {d1}')
-    d2 = Latest_10d_annualized_vol_27 - Latest_10d_annualized_vol_26
-    print(f'10d annualized vol difference:{d2:.7f}')
-    d3 = Daily_Market_Movemets_27 - Daily_Market_Movemets_26
-    print(f'Daily Market Movements difference: {d3:.7f}')
-    d4 = Latest_20d_annualized_vol_27 - Latest_20d_annualized_vol_26
-    print(f'20d annualized vol difference: {d4:.7f}')
-    d5 = Latest_60d_annualized_vol_27 - Latest_60d_annualized_vol_26
-    print(f'60d annualized vol difference : {d5:.7f}')
-    d6 = SMA50_27 - SMA50_26
-    print(f'50 MA difference: {d6:.4f}')
-    d7 = SMA200_27 - SMA200_26
-    print(f'200 MA difference: {d7:.4f}')
-
-differentials()
+Latest_price_27 = 1.1976
+Latest_10d_annualized_vol_27= 0.0084122
+Daily_Market_Movemets_27= 0.00005299
+Latest_20d_annualized_vol_27 = 0.0068896
+Latest_60d_annualized_vol_27 = 0.0049717
+SMA50_27 = 1.1676980000000001
+SMA200_27 = 1.1598515
