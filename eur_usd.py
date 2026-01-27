@@ -63,3 +63,9 @@ Latest_20d_annualized_vol_27 = 0.0062608
 Latest_60d_annualized_vol_27 = 0.0046854
 SMA50_27 = 1.167496
 SMA200_27 = 1.159801
+
+def margin():
+    margin = Daily_Market_Movemets_27*0.25
+    print(f'Margin: {margin:.4%} ')
+
+margin()
