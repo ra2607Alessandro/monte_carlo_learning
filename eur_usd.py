@@ -70,3 +70,9 @@ def margin(x):
 margin = margin(Daily_Market_Movemets_27)
 
 print(f'margin: {margin:.7f}')
+
+m = 0.0011600
+
+range_high= 
+stop_loss = range_high - m
+print(stop_loss)
