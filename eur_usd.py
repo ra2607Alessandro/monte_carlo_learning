@@ -63,3 +63,5 @@ Latest_20d_annualized_vol_27 = 0.0068896
 Latest_60d_annualized_vol_27 = 0.0049717
 SMA50_27 = 1.1676980000000001
 SMA200_27 = 1.1598515
+
+  
