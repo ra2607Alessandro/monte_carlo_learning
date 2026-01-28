@@ -69,4 +69,4 @@ def margin(x):
 
 margin = margin(Daily_Market_Movemets_27)
 
-print(f'margin: {margin:.4f}')
+print(f'margin: {margin:.7f}')
