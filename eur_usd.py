@@ -48,20 +48,25 @@ Latest_60d_annualized_vol_23 = 0.0043330
 SMA50_23 = 1.1664539999999999
 SMA200_23 = 1.1592449999999999
 
-Latest_price_26 = 1.1869
-Latest_10d_annualized_vol_26= 0.0078071
-Daily_Market_Movemets_26= 0.0004918
-Latest_20d_annualized_vol_26 = 0.0062816
-Latest_60d_annualized_vol_26 = 0.0047283
-SMA50_26 = 1.167008
-SMA200_26 = 1.1595095
+Latest_price_26 = 1.1858
+Latest_10d_annualized_vol_26= 0.0074256
+Daily_Market_Movemets_26= 0.0004678
+Latest_20d_annualized_vol_26 = 0.0060237
+Latest_60d_annualized_vol_26 = 0.0046193
+SMA50_26 = 1.16701
+SMA200_26 = 1.15951
 
-Latest_price_27 = 1.1976
-Latest_10d_annualized_vol_27= 0.0084122
-Daily_Market_Movemets_27= 0.00005299
-Latest_20d_annualized_vol_27 = 0.0068896
-Latest_60d_annualized_vol_27 = 0.0049717
-SMA50_27 = 1.1676980000000001
-SMA200_27 = 1.1598515
+Latest_price_27 = 1.1876
+Latest_10d_annualized_vol_27= 0.0073662
+Daily_Market_Movemets_27= 0.00004640
+Latest_20d_annualized_vol_27 = 0.0060168
+Latest_60d_annualized_vol_27 = 0.0045813
+SMA50_27 =  1.167498
+SMA200_27 = 1.1598015000000002 
 
-  
+def margin(x):
+  return x*0.25
+
+margin = margin(Daily_Market_Movemets_27)
+
+print(f'margin: {margin:.4f}')
