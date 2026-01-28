@@ -42,25 +42,25 @@ print("SMA50 (latest):", df['sma_50'].iloc[-1])
 print("SMA200 (latest):", df['sma_200'].iloc[-1])
 
 Latest_price_23 = 1.1743
-Latest_10d_annualized_vol_23 =  0.0064923
-Latest_20d_annualized_vol_23 = 0.0049665
-Latest_60d_annualized_vol_23 = 0.0043330
+Latest_10d_annualized_vol_23 =  0.064923
+Latest_20d_annualized_vol_23 = 0.049665
+Latest_60d_annualized_vol_23 = 0.043330
 SMA50_23 = 1.1664539999999999
 SMA200_23 = 1.1592449999999999
 
 Latest_price_26 = 1.1858
-Latest_10d_annualized_vol_26= 0.0074256
-Daily_Market_Movemets_26= 0.0004678
-Latest_20d_annualized_vol_26 = 0.0060237
-Latest_60d_annualized_vol_26 = 0.0046193
+Latest_10d_annualized_vol_26= 0.074256
+Daily_Market_Movemets_26= 0.004678
+Latest_20d_annualized_vol_26 = 0.060237
+Latest_60d_annualized_vol_26 = 0.046193
 SMA50_26 = 1.16701
 SMA200_26 = 1.15951
 
 Latest_price_27 = 1.1876
-Latest_10d_annualized_vol_27= 0.0073662
-Daily_Market_Movemets_27= 0.00004640
-Latest_20d_annualized_vol_27 = 0.0060168
-Latest_60d_annualized_vol_27 = 0.0045813
+Latest_10d_annualized_vol_27= 0.073662
+Daily_Market_Movemets_27= 0.004640
+Latest_20d_annualized_vol_27 = 0.060168
+Latest_60d_annualized_vol_27 = 0.045813
 SMA50_27 =  1.167498
 SMA200_27 = 1.1598015000000002 
 
