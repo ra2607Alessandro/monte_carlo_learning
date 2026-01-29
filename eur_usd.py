@@ -73,6 +73,11 @@ print(f'margin: {margin:.7f}')
 
 m = 0.0011600
 
-range_high= 
-stop_loss = range_high - m
-print(stop_loss)
+range_high = 1.2045
+range_low = 1.1729
+stop_loss_high = range_high - m
+stop_loss_low = range_low + m 
+print(f'stop loss high : {stop_loss_high}')
+print(f'stop loss low : {stop_loss_low}')
+
+
