@@ -9,7 +9,7 @@ df = df.sort_index()
 range_high = df['Range High']
 range_low = df['Range Low']
 m = 0.0015
-print(f'Range High: {range_high.iloc[-1]}')
-print(f'Range Low: {range_low.iloc[-1]}')
-print(f'Stop Loss if High: {range_high.iloc[-1]-m }')
-print(f'Stop Loss if Low: {range_high.iloc[-1] - m}')
+print(f'Range High: {range_high.iloc[-1]:.5f}')
+print(f'Range Low: {range_low.iloc[-1]:.5f}')
+print(f'Stop Loss if High: {range_high.iloc[-1]-m :.5f}')
+print(f'Stop Loss if Low: {range_low.iloc[-1]+ m :.5f}')
