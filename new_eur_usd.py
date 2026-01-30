@@ -6,8 +6,8 @@ df = df.sort_index()
 # London open 8.00 AM
 # Wall Street open 15.30 PM
 
-range_high = df['Range High']
-range_low = df['Range Low']
+range_high = df['Range High'].astype(float)
+range_low = df['Range Low'].astype(float)
 m = 0.0015
 print(f'Range High: {range_high.iloc[-1]:.5f}')
 print(f'Range Low: {range_low.iloc[-1]:.5f}')
