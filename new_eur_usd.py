@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 df = pd.read_csv("2EUR_USD.csv").set_index('Date')
-df = df.sort_index()
+df = df.set_index('Hour Range').sort_index()
 # look at the 15 min chart when setting the ranges high and low
 # London open 8.00 AM
 # Wall Street open 15.30 PM
