@@ -16,3 +16,9 @@ for file in files:
                 row['Close'],
                 row['Volume']
             ])
+with open('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv','w') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow([
+        'Gmt time','Open','High',
+        'Low','Close','Volume'
+    ])
