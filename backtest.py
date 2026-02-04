@@ -51,7 +51,11 @@ def breakouts(range_high,range_low,session,date):
         first_break = long_breakout.iloc[0]
         # Check if price stayed above for 15 minutes (15 candles)
         break_hold = first_break['hour']
+        break_hold['hour'] = break_hold.dt.hour
+        break_hold['minutes'] = break_hold.dt.minutes
+
         for i in range(15):
+          
           
         
         # Check for breakout below range low
