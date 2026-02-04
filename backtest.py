@@ -2,6 +2,10 @@ import pandas as pd
 import datetime 
 
 df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv')
+df['Gmt time'] = pd.to_datetime(df['Gmt time'], dayfirst=True, errors='coerce')
+df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
+df['date'] = df['Gmt time'].dt.date
+df['hour'] = df['Gmt time'].dt.hour
 
 def get_asian_date(day,month,year):
   date_real = f'{day}.{month}.{year}' 
@@ -49,6 +53,8 @@ def breakouts(range_high,range_low,session,date):
         first_break = long_breakout.iloc[0]
         # Check if price stayed above for 15 minutes (15 candles)
         break_hold = first_break['Gmt time']
+        for i in range(15):
+          
         
         # Check for breakout below range low
         # Confirmed breakout
