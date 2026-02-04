@@ -5,11 +5,12 @@ df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv')
 
 def get_asian_date(day,month,year):
   date_real = f'{day}.{month}.{year}' 
-  morning_asian_session = df[(df['Gmt time'] == f'{date_real} {datetime.time(hour=0,minute=30,second=0,microsecond=0)}' &
-                    df['Gmt time'] == f'{date_real} {datetime.time(hour=7,minute=30,second=0,microsecond=0)}')]
+  for i in range (1,8): 
+   morning_asian_session = df[(df['Gmt time'] == f'{date_real} {datetime.time(hour=i,minute=0,second=0,microsecond=0)}') &
+                    (df['Gmt time'] == f'{date_real} {datetime.time(hour=8,minute=0,second=0,microsecond=0)}')]
   
-  afternoon_asian_session = df[(df['Gmt time'] == f'{date_real} {datetime.time(hour=9,minute=0,second=0,microsecond=0)}' &
-                    df['Gmt time'] == f'{date_real} {datetime.time(hour=15,minute=0,second=0,microsecond=0)}')]
+   afternoon_asian_session = df[(df['Gmt time'] == f'{date_real} {datetime.time(hour=8,minute=0,second=0,microsecond=0)}') &
+                    (df['Gmt time'] == f'{date_real} {datetime.time(hour=14,minute=0,second=0,microsecond=0)}')]
 
   range_high_mornig = morning_asian_session['High'].max()
   range_low_morning = morning_asian_session['Low'].min()
@@ -27,6 +28,27 @@ def get_asian_date(day,month,year):
   print('Range Size (Afternoon) : ',range_size_afternoon)
 
 
-get_asian_date()
+get_asian_date(30,'01',2026)
 
-def breakouts():
+def breakouts(range_high,range_low,session,date):
+  if session.lower() == 'london':
+    start_hour, end_hour = 8, 11
+  if session.lower() == 'new york':
+    start_hour,end_hour = 14, 18
+
+  for i in range(start_hour - 1,end_hour):
+     session_data = df[(df['Gmt time'] == f'{date} {datetime.time(hour=i,minute=0,second=0,microsecond=0)}') &
+                    (df['Gmt time'] == f'{date} {datetime.time(hour=end_hour,minute=0,second=0,microsecond=0)}')]
+  
+     if len(session_data) == 0:
+      return None
+  
+     long_breakout = session_data[session_data['Close'] > range_high ]
+     if len(long_breakout) > 0:
+        
+        first_break = long_breakout.iloc[0]
+        # Check if price stayed above for 15 minutes (15 candles)
+        break_hold = first_break['Gmt time']
+        
+        # Check for breakout below range low
+        # Confirmed breakout
