@@ -36,7 +36,7 @@ def breakouts(range_high,range_low,session,date):
   if session.lower() == 'new york':
     start_hour,end_hour = 14, 18
 
-  for i in range(start_hour - 1,end_hour):
+  for i in range(start_hour,end_hour):
      session_data = df[(df['Gmt time'] == f'{date} {datetime.time(hour=i,minute=0,second=0,microsecond=0)}') &
                     (df['Gmt time'] == f'{date} {datetime.time(hour=end_hour,minute=0,second=0,microsecond=0)}')]
   
