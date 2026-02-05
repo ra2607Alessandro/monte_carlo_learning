@@ -54,8 +54,20 @@ def breakouts(range_high,range_low,session,date):
         break_hold['hour'] = break_hold.dt.hour
         break_hold['minutes'] = break_hold.dt.minutes
 
-        for i in range(15):
+        for i in range(break_hold['minutes'],break_hold['minutes'] + 15):
+          counter = 0
+          precision = counter/15 
+          if break_hold[i]['Close'] > range_high:
+            counter = counter + 1
           
+          return {
+            f' Breakout above range high after first: {counter}'
+            f' Rate of Confidence in breakout: {precision}'
+          }
+        
+
+
+
           
         
         # Check for breakout below range low
