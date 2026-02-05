@@ -36,6 +36,8 @@ def breakouts(range_high,range_low,session,date):
     start_hour, end_hour = 8, 11
   if session.lower() == 'new york':
     start_hour,end_hour = 14, 18
+  else:
+    return None
 
 
   session_data = df[(df['date'] == date) & (df['hour'].between(start_hour,end_hour))] 
@@ -44,7 +46,7 @@ def breakouts(range_high,range_low,session,date):
   if len(session_df) == 0:
       return None
   
-  long_breakout = session_df[session_df['Close'] > range_high ].index.min()
+  long_breakout = session_df[session_df['Close'] > range_high ].index
   if len(long_breakout) > 0:
         
         first_break = long_breakout.iloc[0]
@@ -52,22 +54,20 @@ def breakouts(range_high,range_low,session,date):
         idx = first_break.name
         counter = 0
         precision = counter/15 
-        closes = df.loc[idx:idx+15,'Close']
+        closes = df.loc[idx:idx+14,'Close']
 
         if len(closes) == 15:
-            for i in range(len(closes)):
-               if closes[i]['Close'] > range_high:
-                 counter = counter + 1
-               else :
-                 pass
+           counter = int((closes > range_high).sum()) 
+        else:
+           return None
           
         return {
-            f' Breakout above range high after first: {counter}'
-            f' Rate of Confidence in breakout: {precision}'
+            ' Breakout above range high after first': counter,
+            ' Rate of Confidence in breakout': precision * 100
           }
     
     # Check for breakout below range low
-  short_breakout = session_df[session_df['Close'] < range_low]
+  short_breakout = session_df[session_df['Close'] < range_low].index
   if len(short_breakout) > 0:
         
         first_break = short_breakout.iloc[0]
@@ -75,18 +75,16 @@ def breakouts(range_high,range_low,session,date):
         idx = first_break.name
         counter = 0
         precision = counter/15 
-        closes = df.loc[idx:idx+15,'Close']
+        closes = df.loc[idx:idx+14,'Close']
 
         if len(closes) == 15:
-            for i in range(len(closes)):
-               if closes[i]['Close'] < range_low:
-                 counter = counter + 1
-               else :
-                 pass
+          counter = int((closes < range_low).sum())
+        else:
+           return None
           
         return {
-            f' Breakout below range low after first: {counter}'
-            f' Rate of Confidence in breakout: {precision}'
+            ' Breakout below range low after first' : counter,
+            ' Rate of Confidence in breakout': precision * 100
           }
         
         # Confirmed breakout
