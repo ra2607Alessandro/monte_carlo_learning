@@ -37,58 +37,54 @@ def breakouts(range_high,range_low,session,date):
   if session.lower() == 'new york':
     start_hour,end_hour = 14, 18
 
-  for i in range(start_hour,end_hour):
-     session_data = df[(df['date'] == date) & (df['hour'] == datetime.time(hour=i))] 
-     session_df = session_data.copy()
 
-     if len(session_df) == 0:
+  session_data = df[(df['date'] == date) & (df['hour'].between(start_hour,end_hour))] 
+  session_df = session_data.copy()
+
+  if len(session_df) == 0:
       return None
   
-     long_breakout = session_df[session_df['Close'] > range_high ]
-     if len(long_breakout) > 0:
+  long_breakout = session_df[session_df['Close'] > range_high ].index.min()
+  if len(long_breakout) > 0:
         
         first_break = long_breakout.iloc[0]
         # Check if price stayed above for 15 minutes (15 candles)
-        break_hold = first_break['hour']
-        break_hold['hour'] = break_hold.dt.hour
-        break_hold['minutes'] = break_hold.dt.minutes
         idx = first_break.name
-        for i in range(1,16):
+        counter = 0
+        precision = counter/15 
+        closes = df.loc[idx:idx+15,'Close']
 
-          counter = 0
-          precision = counter/15 
-
-          if df.loc[idx+i] > range_high:
-            counter = counter + 1
-          else:
-            pass
+        if len(closes) == 15:
+            for i in range(len(closes)):
+               if closes[i]['Close'] > range_high:
+                 counter = counter + 1
+               else :
+                 pass
           
-          return {
+        return {
             f' Breakout above range high after first: {counter}'
             f' Rate of Confidence in breakout: {precision}'
           }
     
     # Check for breakout below range low
-     short_breakout = session_df[session_df['Close'] < range_low]
-     if len(short_breakout) > 0:
+  short_breakout = session_df[session_df['Close'] < range_low]
+  if len(short_breakout) > 0:
         
         first_break = short_breakout.iloc[0]
         # Check if price stayed below for 15 minutes (15 candles)
-        break_hold = first_break['hour']
-        break_hold['hour'] = break_hold.dt.hour
-        break_hold['minutes'] = break_hold.dt.minutes
         idx = first_break.name
-        for i in range(1,16):
+        counter = 0
+        precision = counter/15 
+        closes = df.loc[idx:idx+15,'Close']
 
-          counter = 0
-          precision = counter/15 
-
-          if df.loc[idx+i] < range_low:
-            counter = counter + 1 
-          else :
-            pass
+        if len(closes) == 15:
+            for i in range(len(closes)):
+               if closes[i]['Close'] < range_low:
+                 counter = counter + 1
+               else :
+                 pass
           
-          return {
+        return {
             f' Breakout below range low after first: {counter}'
             f' Rate of Confidence in breakout: {precision}'
           }
