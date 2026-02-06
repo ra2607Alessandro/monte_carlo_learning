@@ -116,12 +116,15 @@ def trades(entry_idx, direction, entry_price,tp_multiplier, end_dat,range_size):
       trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Open']
 
    MAX_HOLD_MINS = len(trade)
+   exit = trade[-1].name
    
    return {
       'Entry time': entry_idx['Gmt time'],
-      'Exit time': trade[-1]['Gmt time'],
+      'Exit time': exit['Gmt time'],
       'Entry price': entry_price,
-      'Exit time': trade[-1]['']
+      'Exit time': exit['Close'],
+      'Direction': direction,
+      'PnL': exit['Close'] - entry_price
    }
    
    
