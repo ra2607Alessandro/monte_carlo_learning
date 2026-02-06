@@ -1,131 +1,222 @@
 import pandas as pd
-import datetime 
+import datetime
 
+# Load and preprocess data
+# parse datetimes (dayfirst True) and drop rows where parsing failed
 df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv')
 df['Gmt time'] = pd.to_datetime(df['Gmt time'], dayfirst=True, errors='coerce')
 df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
+# convenience columns
 df['date'] = df['Gmt time'].dt.date
 df['hour'] = df['Gmt time'].dt.hour
 
+# Constants (tweakable)
+CONFIRM_MINUTES = 15
+
+def _range_from_mask(mask):
+      part = df[mask]
+      if part.empty:
+         return None
+      high = part['High'].max()
+      low = part['Low'].min()
+      size = high - low
+      return {'high': float(high), 'low': float(low), 'size': float(size)}
+
+
+
 def get_asian_date(date):
+   """
+   Compute Asian session ranges for a given `date`.
+
+   Returns a dict with keys 'morning' and 'afternoon'. Each value is either
+   None (if session has no candles) or a dict with 'high', 'low', 'size'.
+
+   Uses hours:
+     - morning: hours 1..7 inclusive
+     - afternoon: hours 8..13 inclusive
+
+   Note: `df['hour']` contains integer hour values (0-23). We use
+   boolean masking via `df[mask]` to select rows for the session.
+   """
+   morning_mask = (df['date'] == date) & (df['hour'].between(1, 7))
+   afternoon_mask = (df['date'] == date) & (df['hour'].between(8, 13))
+
    
-  morning_asian_session = df[(df['date'] == date) & (df['hour'].between(1,7))]
-  
-  
-  afternoon_asian_session = df[(df['date'] == date) & (df['hour'].between(8,13))]
-
-  range_high_morning = morning_asian_session['High'].max()
-  range_low_morning = morning_asian_session['Low'].min()
-  range_size_morning = range_high_morning - range_low_morning
-   
-  range_high_afternoon = afternoon_asian_session["High"].max()
-  range_low_afternoon = afternoon_asian_session["Low"].min()
-  range_size_afternoon = range_high_afternoon - range_low_afternoon
-
-  print('Range High (Morning) : ',range_high_morning)
-  print('Range Low (Morning) : ',range_low_morning)
-  print('Range Size (Morning) : ',range_size_morning)
-  print('Range High (Afternoon) : ',range_high_afternoon)
-  print('Range Low (Afternoon) : ',range_low_afternoon)
-  print('Range Size (Afternoon) : ',range_size_afternoon)
+   return {'morning': _range_from_mask(morning_mask), 'afternoon': _range_from_mask(afternoon_mask)}
 
 
+def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINUTES):
+   """
+   Detect and (attempt to) confirm a breakout within a session on `date`.
 
-def breakouts(range_high,range_low,session,date):
-  if session.lower() == 'london':
-    start_hour, end_hour = 8, 11
-  elif session.lower() == 'new york':
-    start_hour,end_hour = 14, 18
-  else:
-    return None
+   Parameters
+   - range_high, range_low: numeric Asian session boundaries
+   - session: 'london' or 'new york'
+   - date: date object to search
+   - confirm_minutes: number of subsequent candles to use for confirmation
 
+   Returns a dict with:
+     - 'direction': 'long' or 'short'
+     - 'first_break_idx': integer index of first breakout candle in `df`
+     - 'entry_idx': integer index to enter (first candle after confirmation)
+     - 'counter': number of confirming candles (0..confirm_minutes)
+     - 'precision': counter/confirm_minutes
+     - 'confirmed': boolean (True if precision == 1.0)
+   Or returns None if no breakout or not enough data to confirm.
 
-  session_data = df[(df['date'] == date) & (df['hour'].between(start_hour,end_hour))] 
-  session_df = session_data.copy()
-
-  if len(session_df) == 0:
-      return None
-  
-  long_breakout = session_df[session_df['Close'] > range_high ].index
-  if len(long_breakout) > 0:
-        
-        first_break = long_breakout[0]
-        # Check if price stayed above for 15 minutes (15 candles)
-        idx = first_break.name
-        
-        closes = df.loc[idx+1:idx+15,'Close']
-
-        if len(closes) == 15:
-           counter = int((closes > range_high).sum()) 
-           entry_idx = first_break + len(closes) + 1
-        else:
-           return None
-          
-        return {
-            ' Breakout above range high after first': counter,
-            ' Rate of Confidence in breakout': (counter/15) * 100,
-            ' Entry':entry_idx
-          }
-    
-    # Check for breakout below range low
-  short_breakout = session_df[session_df['Close'] < range_low].index
-  if len(short_breakout) > 0:
-        
-        first_break = short_breakout[0]
-        # Check if price stayed below for 15 minutes (15 candles)
-        idx = first_break.name
-        
-       
-        closes = df.loc[idx:idx+14,'Close']
-
-        if len(closes) == 15:
-          counter = int((closes < range_low).sum())
-          entry_idx = first_break + len(closes) + 1
-        else:
-           return None
-          
-        return {
-            ' Breakout below range low after first' : counter,
-            ' Rate of Confidence in breakout': (counter/15) * 100,
-            ' Entry': entry_idx
-          }
-        
-        # Confirmed breakout
-  
-def trades(entry_idx, direction, entry_price,tp_multiplier,range_size):
-
-   if direction.lower == 'long':
-    take_profit = entry_price + (tp_multiplier *range_size)
-    stop_loss = entry_price - 0.0015
-   elif direction.lower == 'short':
-    take_profit = entry_price - (tp_multiplier *range_size)
-    stop_loss = entry_price + 0.0015
+   Implementation notes:
+   - select the whole session with a boolean mask (no per-hour loop)
+   - use `.index` to get dataframe integer indices (not `.name` on Series)
+   - slice next `confirm_minutes` candles with `df.loc[start:end, 'Close']` and
+     count confirms using vectorized comparison, e.g. `(closes > range_high).sum()`
+   """
+   s = session.lower()
+   if s == 'london':
+      start_hour, end_hour = 8, 11
+   elif s == 'new york':
+      start_hour, end_hour = 14, 18
    else:
-      raise ValueError('Direction is either "long" or "short"')
-   
-   slot = 'Close' | 'High' | 'Low' | 'Open'
-   trade = df.loc[entry_idx::take_profit or stop_loss,slot]
-   
-   if stop_loss or take_profit == trade[-1]['Close']:
-    trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Close']
-   elif stop_loss or take_profit == trade[-1]['High']:
-      trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'High']
-   elif stop_loss or take_profit == trade[-1]['Low']:
-      trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Low']
-   elif stop_loss or take_profit == trade[-1]['Open']:
-      trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Open']
+      return None
 
-   MAX_HOLD_MINS = len(trade)
-   exit = trade[-1].name
-   
+   # select session rows; inclusive between start_hour..end_hour
+   mask = (df['date'] == date) & (df['hour'].between(start_hour, end_hour))
+   session_df = df[mask]
+   if session_df.empty:
+      return None
+
+   # find first long and short breakout indices (if any)
+   long_idxs = session_df[session_df['Close'] > range_high].index
+   short_idxs = session_df[session_df['Close'] < range_low].index
+
+   def _confirm(first_idx, direction):
+      # confirm uses next `confirm_minutes` candles strictly after first_idx
+      start = int(first_idx) + 1
+      end = start + int(confirm_minutes)
+      if end > len(df):
+         return None
+      closes = df.loc[start:end - 1, 'Close']
+      if len(closes) < confirm_minutes:
+         return None
+      if direction == 'long':
+         counter = int((closes > range_high).sum())
+      else:
+         counter = int((closes < range_low).sum())
+      precision = counter / float(confirm_minutes)
+      entry_idx = end if end < len(df) else None
+      return {
+         'direction': direction,
+         'first_break_idx': int(first_idx),
+         'entry_idx': int(entry_idx) if entry_idx is not None else None,
+         'counter': counter,
+         'precision': precision,
+      }
+
+   if len(long_idxs):
+      res = _confirm(long_idxs[0], 'long')
+      if res:
+         return res
+   if len(short_idxs):
+      res = _confirm(short_idxs[0], 'short')
+      if res:
+         return res
+   return None
+
+
+def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240):
+   """
+   Simulate a simple trade starting at `entry_idx`.
+
+   - `entry_idx` must be an integer index into `df`.
+   - `direction` is 'long' or 'short'.
+   - `tp_multiplier` multiplies the Asian range size to set take-profit.
+   - stop-loss is set to the opposite Asian boundary by the caller; here we
+     approximate a simple fixed stop of 0.0015 if not provided.
+
+   Returns a dict with entry/exit indices, prices, pnl (price units), duration and exit_reason.
+   """
+   if entry_idx is None or entry_idx >= len(df):
+      return None
+
+   entry_idx = int(entry_idx)
+   entry_price = float(df.at[entry_idx, 'Open'])
+   # default stop loss (caller should override if needed)
+   default_sl_dist = 0.0015
+   if direction == 'long':
+      tp = entry_price + tp_multiplier * range_size
+      sl = entry_price - default_sl_dist
+   elif direction == 'short':
+      tp = entry_price - tp_multiplier * range_size
+      sl = entry_price + default_sl_dist
+   else:
+      raise ValueError(f'direction is either "long" or "short" not {direction}')
+
+   i = entry_idx
+   minutes = 0
+   exit_reason = 'timeout'
+   exit_price = df.at[entry_idx, 'Close']
+
+   # iterate candle by candle until TP/SL or timeout
+   while i < len(df) and minutes < max_hold_minutes:
+      o = float(df.at[i, 'Open'])
+      h = float(df.at[i, 'High'])
+      l = float(df.at[i, 'Low'])
+      c = float(df.at[i, 'Close'])
+
+      if direction == 'long':
+         hit_tp = h >= tp
+         hit_sl = l <= sl
+         if hit_tp and not hit_sl:
+            exit_price = tp
+            exit_reason = 'tp'
+            break
+         if hit_sl and not hit_tp:
+            exit_price = sl
+            exit_reason = 'sl'
+            break
+         if hit_tp and hit_sl:
+            # approximate which was hit first by distance from open
+            exit_price = tp if abs(o - tp) < abs(o - sl) else sl
+            exit_reason = 'tp' if exit_price == tp else 'sl'
+            break
+      elif direction == 'short':  # short
+         hit_tp = l <= tp
+         hit_sl = h >= sl
+         if hit_tp and not hit_sl:
+            exit_price = tp
+            exit_reason = 'tp'
+            break
+         if hit_sl and not hit_tp:
+            exit_price = sl
+            exit_reason = 'sl'
+            break
+         if hit_tp and hit_sl:
+            exit_price = tp if abs(o - tp) < abs(o - sl) else sl
+            exit_reason = 'tp' if exit_price == tp else 'sl'
+            break
+      else:
+         raise ValueError(f'direction is either "long" or "short" not {direction}')
+
+      minutes += 1
+      i += 1
+
+   # if loop ends without break, exit at last available close in that period
+   if exit_reason == 'timeout':
+      # ensure we use a valid index
+      last_idx = min(i - 1, len(df) - 1)
+      exit_price = float(df.at[last_idx, 'Close'])
+
+   pnl = (exit_price - entry_price) if direction == 'long' else (entry_price - exit_price)
+   duration = minutes
    return {
-      'Entry time': entry_idx['Gmt time'],
-      'Exit time': exit['Gmt time'],
-      'Entry price': entry_price,
-      'Exit time': exit['Close'],
-      'Direction': direction,
-      'PnL': exit['Close'] - entry_price,
-      'Duration': MAX_HOLD_MINS
+      'entry_idx': entry_idx,
+      'entry_time': df.at[entry_idx, 'Gmt time'],
+      'entry_price': entry_price,
+      'exit_price': exit_price,
+      'exit_time': df.at[min(i, len(df) - 1), 'Gmt time'],
+      'direction': direction,
+      'pnl': pnl,
+      'duration_mins': duration,
+      'exit_reason': exit_reason,
    }
    
    
