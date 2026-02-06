@@ -218,6 +218,54 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
       'duration_mins': duration,
       'exit_reason': exit_reason,
    }
+
+
+def backtest(tp_multiplier=2.0, min_confidence=1.0):
+      """
+      Run the backtest over all dates in `df`.
+
+      - `tp_multiplier`: multiple of Asian range used for take-profit
+      - `min_confidence`: required precision (counter/confirm_minutes) to accept a breakout
+
+      Returns a pandas DataFrame of trades.
+      """
+      trades_list = []
+      for date in sorted(df['date'].unique()):
+         asian = get_asian_date(date)
+         # prefer morning range if available, else afternoon
+         rng = asian.get('morning') or asian.get('afternoon')
+         if not rng or rng['size'] == 0:
+            continue
+
+         for session in ('london', 'new york'):
+            br = breakouts(rng['high'], rng['low'], session, date)
+            if not br:
+               continue
+            if br.get('precision', 0.0) < float(min_confidence):
+               continue
+            entry_idx = br.get('entry_idx')
+            if entry_idx is None:
+               continue
+            trade = trades(entry_idx, br['direction'], tp_multiplier, rng['size'])
+            if trade:
+               trade.update({'date': date, 'session': session, 'range_size': rng['size'], 'first_break_idx': br['first_break_idx'], 'precision': br['precision']})
+               trades_list.append(trade)
+
+      if not trades_list:
+         return pd.DataFrame()
+      return pd.DataFrame(trades_list)
+
+
+if __name__ == '__main__':
+    results = backtest()
+    if results.empty:
+         print('No trades found.')
+    else:
+         total_pnl = results['pnl'].sum()
+         wins = results[results['pnl'] > 0]
+         print(f"Trades: {len(results)}, Wins: {len(wins)}, Winrate: {len(wins)/len(results):.2%}")
+         print(f"Total P&L (price units): {total_pnl:.5f}")
+         print(results[['date','session','direction','entry_time','entry_price','exit_time','exit_price','pnl']].head(50))
    
    
    
