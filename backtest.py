@@ -92,16 +92,19 @@ def breakouts(range_high,range_low,session,date):
         
         # Confirmed breakout
   
-def trades(entry_idx, direction, entry_price, tp, end_dat,range_size):
-   
-   stop_loss = entry_price - 0.0015
+def trades(entry_idx, direction, entry_price,tp_multiplier, end_dat,range_size):
 
    if direction.lower == 'long':
-    take_profit = entry_price + (tp *range_size)
+    take_profit = entry_price + (tp_multiplier *range_size)
+    stop_loss = entry_price - 0.0015
    elif direction.lower == 'short':
-    take_profit = entry_price - (tp *range_size)
+    take_profit = entry_price - (tp_multiplier *range_size)
+    stop_loss = entry_price + 0.0015
    else:
       raise ValueError('Direction is either "long" or "short"')
+   
+   trade = df.loc[entry_idx::take_profit or stop_loss,'Close']
+   
    
    
    
