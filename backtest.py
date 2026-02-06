@@ -92,7 +92,7 @@ def breakouts(range_high,range_low,session,date):
         
         # Confirmed breakout
   
-def trades(entry_idx, direction, entry_price,tp_multiplier, end_dat,range_size):
+def trades(entry_idx, direction, entry_price,tp_multiplier,range_size):
 
    if direction.lower == 'long':
     take_profit = entry_price + (tp_multiplier *range_size)
@@ -124,7 +124,8 @@ def trades(entry_idx, direction, entry_price,tp_multiplier, end_dat,range_size):
       'Entry price': entry_price,
       'Exit time': exit['Close'],
       'Direction': direction,
-      'PnL': exit['Close'] - entry_price
+      'PnL': exit['Close'] - entry_price,
+      'Duration': MAX_HOLD_MINS
    }
    
    
