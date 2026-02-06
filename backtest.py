@@ -256,16 +256,6 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
       return pd.DataFrame(trades_list)
 
 
-if __name__ == '__main__':
-    results = backtest()
-    if results.empty:
-         print('No trades found.')
-    else:
-         total_pnl = results['pnl'].sum()
-         wins = results[results['pnl'] > 0]
-         print(f"Trades: {len(results)}, Wins: {len(wins)}, Winrate: {len(wins)/len(results):.2%}")
-         print(f"Total P&L (price units): {total_pnl:.5f}")
-         print(results[['date','session','direction','entry_time','entry_price','exit_time','exit_price','pnl']].head(50))
-   
-   
+results = backtest()
+print(results)
    
