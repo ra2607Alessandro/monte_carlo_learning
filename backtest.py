@@ -253,7 +253,8 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
 
       if not trades_list:
          return pd.DataFrame()
-      return pd.DataFrame(trades_list)
+      else: 
+         return pd.DataFrame(trades_list)
 
 
 results = backtest()
