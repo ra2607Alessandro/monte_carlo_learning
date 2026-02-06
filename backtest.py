@@ -103,8 +103,26 @@ def trades(entry_idx, direction, entry_price,tp_multiplier, end_dat,range_size):
    else:
       raise ValueError('Direction is either "long" or "short"')
    
-   trade = df.loc[entry_idx::take_profit or stop_loss,'Close']
+   slot = 'Close' | 'High' | 'Low' | 'Open'
+   trade = df.loc[entry_idx::take_profit or stop_loss,slot]
    
+   if stop_loss or take_profit == df['Close']:
+    trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Close']
+   elif stop_loss or take_profit == df['High']:
+      trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'High']
+   elif stop_loss or take_profit == df['Low']:
+      trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Low']
+   elif stop_loss or take_profit == df['Open']:
+      trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Open']
+
+   MAX_HOLD_MINS = len(trade)
+   
+   return {
+      'Entry time': entry_idx['Gmt time'],
+      'Exit time': trade[-1]['Gmt time'],
+      'Entry price': entry_price,
+      'Exit time': trade[-1]['']
+   }
    
    
    
