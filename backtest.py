@@ -106,13 +106,13 @@ def trades(entry_idx, direction, entry_price,tp_multiplier,range_size):
    slot = 'Close' | 'High' | 'Low' | 'Open'
    trade = df.loc[entry_idx::take_profit or stop_loss,slot]
    
-   if stop_loss or take_profit == df['Close']:
+   if stop_loss or take_profit == trade[-1]['Close']:
     trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Close']
-   elif stop_loss or take_profit == df['High']:
+   elif stop_loss or take_profit == trade[-1]['High']:
       trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'High']
-   elif stop_loss or take_profit == df['Low']:
+   elif stop_loss or take_profit == trade[-1]['Low']:
       trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Low']
-   elif stop_loss or take_profit == df['Open']:
+   elif stop_loss or take_profit == trade[-1]['Open']:
       trade = df.loc[entry_idx::take_profit or stop_loss,slot == 'Open']
 
    MAX_HOLD_MINS = len(trade)
