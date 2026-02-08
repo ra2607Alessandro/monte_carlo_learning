@@ -1,5 +1,6 @@
 import pandas as pd
 import datetime
+import numpy as np
 
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
@@ -257,6 +258,12 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          return pd.DataFrame(trades_list)
 
 
+
+def sharpe_ratio(entry_price,pnl):
+   trade_return = pnl/entry_price
+   sigma = np.std()
+
+
 results = backtest()
 if results.empty:
    print("No trades")
@@ -264,7 +271,9 @@ else:
    total_pnl = results['pnl'].sum()
    wins = results[results['pnl'] > 0]
    winrate = (len(wins)/len(results))*100
+   Sharpe_ratio = sharpe_ratio(entry_price=1.18147,pnl=total_pnl)
    print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate:.3f}')
    print(f'Total P&L: {total_pnl:.5f}')   
+   print(f'Sharpe Ratio: {Sharpe_ratio}')
 
 #add the sharpe ratio
