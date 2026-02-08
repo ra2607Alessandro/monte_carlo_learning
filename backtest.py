@@ -261,8 +261,8 @@ results = backtest()
 if results.empty:
    print("No trades")
 else:
-   total_pnl = results['p&l'].sum()
-   wins = results[results['p&l'] > 0]
-   winrate = wins/len(results)
+   total_pnl = results['pnl'].sum()
+   wins = results[results['pnl'] > 0]
+   winrate = len(wins)/len(results)
    print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate}')
    print(f'Total P&L: {total_pnl}')   
