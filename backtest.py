@@ -258,5 +258,11 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
 
 
 results = backtest()
-print(results)
-   
+if results.empty:
+   print("No trades")
+else:
+   total_pnl = results['p&l'].sum()
+   wins = results[results['p&l'] > 0]
+   winrate = wins/len(results)
+   print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate}')
+   print(f'Total P&L: {total_pnl}')   
