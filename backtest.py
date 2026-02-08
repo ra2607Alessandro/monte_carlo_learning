@@ -260,9 +260,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
 
 
 def sharpe_ratio(entry_price,pnl):
-   trade_return = np.mean(pnl/entry_price)
-   sigma = np.std(trade_return)
-   sr = trade_return/sigma
+   Return = pnl/entry_price
+   mean_return = np.mean(Return)
+   sigma = np.std(Return)
+   sr = mean_return/sigma
    return sr
 
 
@@ -273,9 +274,9 @@ else:
    total_pnl = results['pnl'].sum()
    wins = results[results['pnl'] > 0]
    winrate = (len(wins)/len(results))*100
-   Sharpe_ratio = sharpe_ratio(entry_price=1.18147,pnl=total_pnl)
+   Sharpe_ratio = sharpe_ratio(entry_price=results[['entry_price']].values,pnl=results['pnl'].values)
    print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate:.3f}')
    print(f'Total P&L: {total_pnl:.5f}')   
-   print(f'Sharpe Ratio: {Sharpe_ratio}')
+   print(f'Sharpe Ratio: {Sharpe_ratio:.5f}')
 
 #add the sharpe ratio
