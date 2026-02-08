@@ -260,8 +260,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
 
 
 def sharpe_ratio(entry_price,pnl):
-   trade_return = pnl/entry_price
-   sigma = np.std()
+   trade_return = np.mean(pnl/entry_price)
+   sigma = np.std(trade_return)
+   sr = trade_return/sigma
+   return sr
 
 
 results = backtest()
