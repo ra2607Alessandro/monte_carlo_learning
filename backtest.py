@@ -263,6 +263,8 @@ if results.empty:
 else:
    total_pnl = results['pnl'].sum()
    wins = results[results['pnl'] > 0]
-   winrate = len(wins)/len(results)
-   print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate}')
-   print(f'Total P&L: {total_pnl}')   
+   winrate = (len(wins)/len(results))*100
+   print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate:.3f}')
+   print(f'Total P&L: {total_pnl:.5f}')   
+
+#add the sharpe ratio
