@@ -21,14 +21,8 @@ def _range_from_mask(mask):
       highest_open = part['High'].max()
       lowest_close = part['Low'].min()
       size = highest_open - lowest_close
-
-      MIN_RANGE = 0.0015
-      MAX_RANGE = 0.0050
-      if  MIN_RANGE <= size or size <= MAX_RANGE: 
-        return {'high': float(highest_open), 'low': float(lowest_close), 'size': float(size)}
-      else:
-         return None
-
+ 
+      return {'high': float(highest_open), 'low': float(lowest_close), 'size': float(size)}
 
 def get_asian_date(date):
    """
@@ -242,7 +236,8 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
-
+         if rng['size'] < 0.0015 or rng['size'] > 0.0050:
+            continue
          for session in ('london', 'new york'):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
