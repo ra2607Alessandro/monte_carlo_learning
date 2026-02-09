@@ -18,11 +18,16 @@ def _range_from_mask(mask):
       part = df[mask]
       if part.empty:
          return None
-      high = part['High'].max()
-      low = part['Low'].min()
-      size = high - low
-      return {'high': float(high), 'low': float(low), 'size': float(size)}
+      highest_open = part['High'].max()
+      lowest_close = part['Low'].min()
+      size = highest_open - lowest_close
 
+      MIN_RANGE = 0.0015
+      NAX_RANGE = 0.0050
+      if  MIN_RANGE <= size or size <= MIN_RANGE: 
+        return {'high': float(highest_open), 'low': float(lowest_close), 'size': float(size)}
+      else:
+         return None
 
 
 def get_asian_date(date):
