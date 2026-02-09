@@ -23,8 +23,8 @@ def _range_from_mask(mask):
       size = highest_open - lowest_close
 
       MIN_RANGE = 0.0015
-      NAX_RANGE = 0.0050
-      if  MIN_RANGE <= size or size <= MIN_RANGE: 
+      MAX_RANGE = 0.0050
+      if  MIN_RANGE <= size or size <= MAX_RANGE: 
         return {'high': float(highest_open), 'low': float(lowest_close), 'size': float(size)}
       else:
          return None
