@@ -140,7 +140,7 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    entry_idx = int(entry_idx)
    entry_price = float(df.at[entry_idx, 'Open'])
    # default stop loss (caller should override if needed)
-   default_sl_dist = 0.8
+   default_sl_dist = 1.0
    if direction == 'long':
       tp = entry_price + tp_multiplier * range_size
       sl = entry_price - (range_size * default_sl_dist)
@@ -236,7 +236,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
-         if rng['size']/2 < 0.0015 or rng['size']/2 > 0.0050:
+         if rng['size'] < 0.0015 or rng['size'] > 0.0050:
             continue
          for session in ('london', 'new york'):
             br = breakouts(rng['high'], rng['low'], session, date)
