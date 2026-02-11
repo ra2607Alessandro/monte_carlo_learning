@@ -72,7 +72,7 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
    """
    s = session.lower()
    if s == 'london':
-      start_hour, end_hour = 8, 11
+      start_hour, end_hour = 8, 10
    elif s == 'new york':
       start_hour, end_hour = 14, 18
    else:
