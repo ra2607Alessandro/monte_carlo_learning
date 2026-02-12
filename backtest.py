@@ -5,11 +5,11 @@ import numpy as np
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
 df = pd.read_csv('GBPUSD_M1.csv')
-df['Gmt time'] = pd.to_datetime(df['Time'], dayfirst=True, errors='coerce')
-df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
+df['Time'] = pd.to_datetime(df['Time'], dayfirst=True, errors='coerce')
+df = df.dropna(subset=['Time']).sort_values('Time').reset_index(drop=True)
 # convenience columns
-df['date'] = df['Gmt time'].dt.date
-df['hour'] = df['Gmt time'].dt.hour
+df['date'] = df['Time'].dt.date
+df['hour'] = df['Time'].dt.hour
 
 # Constants (tweakable)
 CONFIRM_MINUTES = 15
