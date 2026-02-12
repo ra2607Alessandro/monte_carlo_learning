@@ -4,8 +4,8 @@ import numpy as np
 
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
-df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv')
-df['Gmt time'] = pd.to_datetime(df['Gmt time'], dayfirst=True, errors='coerce')
+df = pd.read_csv('GBPUSD_M1.csv')
+df['Gmt time'] = pd.to_datetime(df['Time'], dayfirst=True, errors='coerce')
 df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
 # convenience columns
 df['date'] = df['Gmt time'].dt.date
@@ -74,7 +74,7 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
    if s == 'london':
       start_hour, end_hour = 8, 10
    elif s == 'new york':
-      start_hour, end_hour = 14, 18
+      start_hour, end_hour = 14, 19
    else:
       return None
 
@@ -238,7 +238,8 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             continue
          if rng['size'] < 0.0015 or rng['size'] > 0.0050:
             continue
-         for session in ('new york','london'):
+         #'london',
+         for session in ('new york',):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
                continue
