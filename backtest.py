@@ -209,10 +209,10 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    duration = minutes
    return {
       'entry_idx': entry_idx,
-      'entry_time': df.at[entry_idx, 'Gmt time'],
+      'entry_time': df.at[entry_idx, 'Time'],
       'entry_price': entry_price,
       'exit_price': exit_price,
-      'exit_time': df.at[min(i, len(df) - 1), 'Gmt time'],
+      'exit_time': df.at[min(i, len(df) - 1), 'Time'],
       'direction': direction,
       'pnl': pnl,
       'duration_mins': duration,
