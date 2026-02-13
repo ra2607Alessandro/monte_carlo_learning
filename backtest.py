@@ -8,7 +8,8 @@ df = pd.read_csv('GBPUSD_M1.csv')
 if 'Time' not in df.columns:
    time_col = df.columns[0]
    df.rename(columns={time_col:'Time'},inplace=True)
-df['Time'] = pd.to_datetime(df['Time'], dayfirst=True, errors='coerce')
+
+df['Time'] = pd.to_datetime(df['Time'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
 df = df.dropna(subset=['Time']).sort_values('Time').reset_index(drop=True)
 # convenience columns
 df['date'] = df['Time'].dt.date
