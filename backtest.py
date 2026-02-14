@@ -4,19 +4,19 @@ import numpy as np
 
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
-df = pd.read_csv('GBPUSD_M1.csv')
+df = pd.read_csv('GBPUSD_M1.csv', delim_whitespace=True)
 if 'Time' not in df.columns:
    time_col = df.columns[0]
    df.rename(columns={time_col:'Time'},inplace=True)
    print(f'how many rows: {len(df)}')
    print(f'Colums: {df.columns.to_list()}')
    print(f'First Timestamps: {df['Time'].head()}')
-
-df['Time'] = pd.to_datetime(df['Time'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
-df = df.dropna(subset=['Time']).sort_values('Time').reset_index(drop=True)
+else:
+  df['Time'] = pd.to_datetime(df['Time'], errors='coerce')
+  df = df.dropna(subset=['Time']).sort_values('Time').reset_index(drop=True)
 # convenience columns
-df['date'] = df['Time'].dt.date
-df['hour'] = df['Time'].dt.hour
+  df['date'] = df['Time'].dt.date
+  df['hour'] = df['Time'].dt.hour
 
 # Constants (tweakable)
 CONFIRM_MINUTES = 15
@@ -237,14 +237,17 @@ def backtest(tp_multiplier=2.0, min_confidence=0.8):
       Returns a pandas DataFrame of trades.
       """
       trades_list = []
+      total_dates = 0
+
       for date in sorted(df['date'].unique()):
+         total_dates += 1
          asian = get_asian_date(date)
          # prefer morning range if available, else afternoon
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
          #'london',
-         for session in ('new york',):
+         for session in ('new york','london'):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
                continue
