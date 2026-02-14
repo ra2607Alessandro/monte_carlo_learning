@@ -4,19 +4,18 @@ import numpy as np
 
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
-df = pd.read_csv('GBPUSD_M1.csv',sep='\s+')
-if 'Time' not in df.columns:
-   time_col = df.columns[0]
-   df.rename(columns={time_col:'Time'},inplace=True)
-   print(f'how many rows: {len(df)}')
-   print(f'Colums: {df.columns.to_list()}')
-   print(f'First Timestamps: {df['Time'].head()}')
-else:
-  df['Time'] = pd.to_datetime(df['Time'], errors='coerce')
-  df = df.dropna(subset=['Time']).sort_values('Time').reset_index(drop=True)
+df = pd.read_csv('GBPUSD_M1_formatted.csv')
+#if 'Time' not in df.columns:
+   #time_col = df.columns[0]
+   #df.rename(columns={time_col:'Time'},inplace=True)
+   #print(f'how many rows: {len(df)}')
+   #print(f'Colums: {df.columns.to_list()}')
+   #print(f'First Timestamps: {df['Time'].head()}')
+df['Gmt time'] = pd.to_datetime(df['Gmt time'], errors='coerce')
+df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
 # convenience columns
-  df['date'] = df['Time'].dt.date
-  df['hour'] = df['Time'].dt.hour
+df['date'] = df['Gmt time'].dt.date
+df['hour'] = df['Gmt time'].dt.hour
 
 # Constants (tweakable)
 CONFIRM_MINUTES = 15
@@ -216,10 +215,10 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    duration = minutes
    return {
       'entry_idx': entry_idx,
-      'entry_time': df.at[entry_idx, 'Time'],
+      'entry_time': df.at[entry_idx, 'Gmt time'],
       'entry_price': entry_price,
       'exit_price': exit_price,
-      'exit_time': df.at[min(i, len(df) - 1), 'Time'],
+      'exit_time': df.at[min(i, len(df) - 1), 'Gmt time'],
       'direction': direction,
       'pnl': pnl,
       'duration_mins': duration,
@@ -227,7 +226,7 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    }
 
 
-def backtest(tp_multiplier=2.0, min_confidence=0.8):
+def backtest(tp_multiplier=2.0, min_confidence=1.0):
       """
       Run the backtest over all dates in `df`.
 
