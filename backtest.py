@@ -8,6 +8,9 @@ df = pd.read_csv('GBPUSD_M1.csv')
 if 'Time' not in df.columns:
    time_col = df.columns[0]
    df.rename(columns={time_col:'Time'},inplace=True)
+   print(f'how many rows: {len(df)}')
+   print(f'Colums: {df.columns.to_list()}')
+   print(f'First Timestamps: {df['Time'].head()}')
 
 df['Time'] = pd.to_datetime(df['Time'], format='%Y-%m-%d %H:%M:%S', errors='coerce')
 df = df.dropna(subset=['Time']).sort_values('Time').reset_index(drop=True)
@@ -224,7 +227,7 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    }
 
 
-def backtest(tp_multiplier=2.0, min_confidence=1.0):
+def backtest(tp_multiplier=2.0, min_confidence=0.8):
       """
       Run the backtest over all dates in `df`.
 
@@ -240,15 +243,14 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
-         if rng['size'] < 0.0015 or rng['size'] > 0.0050:
-            continue
          #'london',
          for session in ('new york',):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
                continue
+            if rng['size'] < 0.0015 or rng['size'] > 0.0050:
+               continue
             if br.get('precision', 0.0) < float(min_confidence):
-               
                continue
             entry_idx = br.get('entry_idx')
             if entry_idx is None:
