@@ -1,10 +1,10 @@
 import pandas as pd
 import datetime
 import numpy as np
-
+from eur_usd import m as margin
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
-df = pd.read_csv('GBPUSD_M1_formatted.csv')
+df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv')
 #if 'Time' not in df.columns:
    #time_col = df.columns[0]
    #df.rename(columns={time_col:'Time'},inplace=True)
@@ -18,7 +18,7 @@ df['date'] = df['Gmt time'].dt.date
 df['hour'] = df['Gmt time'].dt.hour
 
 # Constants (tweakable)
-CONFIRM_MINUTES = 5
+CONFIRM_MINUTES = 15
 
 def _range_from_mask(mask):
       part = df[mask]
@@ -143,16 +143,18 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    if entry_idx is None or entry_idx >= len(df):
       return None
 
+   
+
+
    entry_idx = int(entry_idx)
    entry_price = float(df.at[entry_idx, 'Open'])
    # default stop loss (caller should override if needed)
-   default_sl_dist = 1.0
    if direction == 'long':
       tp = entry_price + tp_multiplier * range_size
-      sl = entry_price - (range_size * default_sl_dist)
+      sl = entry_price - (range_size * margin)
    elif direction == 'short':
       tp = entry_price - tp_multiplier * range_size
-      sl = entry_price + (range_size * default_sl_dist)
+      sl = entry_price + (range_size * margin)
    else:
       raise ValueError(f'direction is either "long" or "short" not {direction}')
 
