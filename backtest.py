@@ -1,7 +1,7 @@
 import pandas as pd
 import datetime
 import numpy as np
-from eur_usd import m as margin
+
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
 df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-30.01.2026.csv')
@@ -128,7 +128,7 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
    return None
 
 
-def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240):
+def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=2):
    """
    Simulate a simple trade starting at `entry_idx`.
 
@@ -149,22 +149,25 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
    entry_idx = int(entry_idx)
    entry_price = float(df.at[entry_idx, 'Open'])
    # default stop loss (caller should override if needed)
+   default_sl = 1.0
    if direction == 'long':
       tp = entry_price + tp_multiplier * range_size
-      sl = entry_price - (range_size * margin)
+      sl = entry_price - (range_size * default_sl)
    elif direction == 'short':
       tp = entry_price - tp_multiplier * range_size
-      sl = entry_price + (range_size * margin)
+      sl = entry_price + (range_size * default_sl)
    else:
       raise ValueError(f'direction is either "long" or "short" not {direction}')
 
    i = entry_idx
    minutes = 0
+   hours = 0
    exit_reason = 'timeout'
    exit_price = df.at[entry_idx, 'Close']
+   max_hold_minutes = max_hold_hours * 60 
 
    # iterate candle by candle until TP/SL or timeout
-   while i < len(df) and minutes < max_hold_minutes:
+   while i < len(df) and minutes < max_hold_minutes and hours < max_hold_hours:
       o = float(df.at[i, 'Open'])
       h = float(df.at[i, 'High'])
       l = float(df.at[i, 'Low'])
@@ -205,6 +208,9 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_minutes=240
          raise ValueError(f'direction is either "long" or "short" not {direction}')
 
       minutes += 1
+      if minutes == 59:
+         hours += 1
+         minutes = 0
       i += 1
 
    # if loop ends without break, exit at last available close in that period
