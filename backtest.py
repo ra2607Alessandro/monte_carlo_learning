@@ -128,7 +128,7 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
    return None
 
 
-def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=2):
+def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=16):
    """
    Simulate a simple trade starting at `entry_idx`.
 
