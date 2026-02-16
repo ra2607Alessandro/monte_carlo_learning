@@ -18,7 +18,7 @@ df['date'] = df['Gmt time'].dt.date
 df['hour'] = df['Gmt time'].dt.hour
 
 # Constants (tweakable)
-CONFIRM_MINUTES = 15
+CONFIRM_MINUTES = 5
 
 def _range_from_mask(mask):
       part = df[mask]
