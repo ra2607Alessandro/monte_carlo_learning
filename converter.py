@@ -7,13 +7,13 @@ files= [
         'EURUSD_Candlestick_1_M_BID_01.09.2025-02.12.2025.csv',
         'EURUSD_Candlestick_1_M_BID_01.12.2025-19.01.2026.csv',
         'EURUSD_Candlestick_1_M_BID_19.01.2026-30.01.2026.csv',
-        'DAT_MT_EURUSD_M1_202602'
+        'DAT_MT_EURUSD_M1_202602.csv'
         ]
 for i in range(len(files)):
     with open(files[i]) as csvfile:
         reader = csv.DictReader(csvfile)
         fieldname = reader.fieldnames
-        if 'Day' in fieldname and 'Hour' in fieldname and not 'Gmt time':
+        if 'Day' in fieldname and 'Hour' in fieldname:
          for row in reader:
                 gmt_time = f'{row['Day']} {row['Hour']}'
                 new_csv_data.append([
