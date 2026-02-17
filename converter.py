@@ -13,7 +13,18 @@ for i in range(len(files)):
     with open(files[i]) as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            new_csv_data.append([
+            if row[0] == 'Day' and row[1] == 'Hour':
+                gmt_time = []
+                gmt_time.append[row['Day'],row['Hour']] 
+                new_csv_data.append([
+                gmt_time, 
+                row['Open'],
+                row['High'],
+                row['Low'],
+                row['Close'],
+                row['Volume']])
+            else:
+                new_csv_data.append([
                 row['Gmt time'],
                 row['Open'],
                 row['High'],
