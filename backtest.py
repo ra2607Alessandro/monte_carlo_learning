@@ -80,7 +80,7 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
    if s == 'london':
       start_hour, end_hour = 8, 10
    elif s == 'new york':
-      start_hour, end_hour = 14, 19
+      start_hour, end_hour = 14, 17
    else:
       return None
 
