@@ -258,6 +258,12 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
                continue
+            if br['direction'] == 'long':
+               if rng['high'] - br['entry_idx'] > 0.0010:
+                  continue
+            if br['direction'] == ' short':
+               if br['entry_idx'] - rng['low'] > 0.0010:
+                  continue
             if br.get('precision', 0.0) < float(min_confidence):
                continue
             entry_idx = br.get('entry_idx')
