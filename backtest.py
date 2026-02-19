@@ -256,9 +256,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          #'london',
          for session in ('new york','london'):
             br = breakouts(rng['high'], rng['low'], session, date)
-            entry_price = df.at[br['entry_idx'], 'Open']
+            entry_idx = br.get('entry_idx')
             if not br:
                continue
+            entry_price = df.at[entry_idx,'Open']
             if br['direction'] == 'long':
                if entry_price - rng['high']  > 0.0010:
                   continue
