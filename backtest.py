@@ -251,6 +251,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          asian = get_asian_date(date)
          # prefer morning range if available, else afternoon
          rng = asian.get('morning') or asian.get('afternoon')
+         entry_price = df.at[br['entry_idx'], 'Open']
          if not rng or rng['size'] == 0:
             continue
          #'london',
@@ -259,10 +260,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             if not br:
                continue
             if br['direction'] == 'long':
-               if rng['high'] - br['entry_idx'] > 0.0010:
+               if entry_price - rng['high']  > 0.0010:
                   continue
-            if br['direction'] == ' short':
-               if br['entry_idx'] - rng['low'] > 0.0010:
+            if br['direction'] == 'short':
+               if rng['low'] - entry_price > 0.0010:
                   continue
             if br.get('precision', 0.0) < float(min_confidence):
                continue
