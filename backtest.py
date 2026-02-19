@@ -251,12 +251,12 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          asian = get_asian_date(date)
          # prefer morning range if available, else afternoon
          rng = asian.get('morning') or asian.get('afternoon')
-         entry_price = df.at[br['entry_idx'], 'Open']
          if not rng or rng['size'] == 0:
             continue
          #'london',
          for session in ('new york','london'):
             br = breakouts(rng['high'], rng['low'], session, date)
+            entry_price = df.at[br['entry_idx'], 'Open']
             if not br:
                continue
             if br['direction'] == 'long':
