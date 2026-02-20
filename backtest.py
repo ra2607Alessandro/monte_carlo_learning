@@ -295,10 +295,12 @@ results = backtest()
 if results.empty:
    print("No trades")
 else:
+   exit_reasons = results.groupby('exit_reason')['pnl'].agg(['mean'],['count'])
    total_pnl = results['pnl'].sum()
    wins = results[results['pnl'] > 0]
    winrate = (len(wins)/len(results))*100
    Sharpe_ratio = sharpe_ratio(entry_price=results[['entry_price']].values,pnl=results['pnl'].values)
+   print(f'exit reasons: {exit_reasons}')
    print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate:.3f}')
    print(f'Total P&L: {total_pnl:.5f}')   
    print(f'Sharpe Ratio: {Sharpe_ratio:.5f}')
