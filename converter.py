@@ -18,42 +18,41 @@ for i in range(len(files)):
         if 'Day' in fieldname and 'Hour' in fieldname:
              for row in reader:
                 gmt_time = f'{row['Day']} {row['Hour']}'
-                new_csv_data.append([
-                gmt_time, 
+                new_csv_data[gmt_time] = [
                 row['Open'],
                 row['High'],
                 row['Low'],
                 row['Close'],
-                row['Volume']])
+                row['Volume']
+                ]
         elif 'Time' in fieldname:
             for row in reader:
                 dt = datetime.strptime(row['Time'],'%Y-%m-%d %H:%M:%S')
-                new_csv_data.append([
-                dt,
+                new_csv_data[dt] = [ 
                 row['Open'],
                 row['High'],
                 row['Low'],
                 row['Close'],
                 row['Volume']
-                ])
+                ]
         
         else:
             for row in reader:
-                new_csv_data.append([
-                row['Gmt time'],
+                gmt_time = row['Gmt time']
+                new_csv_data[gmt_time] = [
                 row['Open'],
                 row['High'],
                 row['Low'],
                 row['Close'],
-                row['Volume']
-            ])
+                row['Volume']]
 
+sorted_data = sorted(new_csv_data.items())
 
-
-with open('EURUSD_Candlesticks_1_M_BID_01.01.2025-20.02.2026.csv','w') as csvfile:
+with open('EURUSD_Candlesticks_1_M_BID_01.01.2025-20.02.2026.csv','w',newline=' ') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow([
         'Gmt time','Open','High',
         'Low','Close','Volume'
     ])
-    writer.writerows(new_csv_data)
+    for gmt_time, values in sorted_data:
+      writer.writerow([gmt_time] + values)
