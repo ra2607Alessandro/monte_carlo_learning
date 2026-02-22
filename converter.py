@@ -17,6 +17,7 @@ for i in range(len(files)):
     with open(files[i]) as csvfile:
         reader = csv.DictReader(csvfile)
         fieldname = reader.fieldnames
+        print(files[i], fieldname)
 
         if 'Day' in fieldname and 'Hour' in fieldname:
             for row in reader:
@@ -29,7 +30,7 @@ for i in range(len(files)):
                 gmt_time = dt.strftime('%d.%m.%Y %H:%M:%S.000')
                 new_csv_data[gmt_time] = [row['Open'], row['High'], row['Low'], row['Close'], row['Volume']]
 
-        else:
+        elif 'Gmt time' in fieldname:
             for row in reader:
                 gmt_time = row['Gmt time']
                 new_csv_data[gmt_time] = [row['Open'], row['High'], row['Low'], row['Close'], row['Volume']]
