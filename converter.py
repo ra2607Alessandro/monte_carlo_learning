@@ -21,24 +21,24 @@ for i in range(len(files)):
 
         if 'Day' in fieldname and 'Hour' in fieldname:
             for row in reader:
-                dt = datetime.strptime(row["Hour"],'%H:%M')
-                gmt_hour = dt.strftime('%d.%m.%Y %H:%M:%S.000')
-                gmt_time = f'{row['Day']} {gmt_hour}'
+                dt = datetime.strptime(f'{row["Day"]} {row["Hour"]}', '%Y.%m.%d %H:%M')
+                gmt_time = dt.strftime('%d.%m.%Y %H:%M:%S.000')
                 new_csv_data[gmt_time] = [row['Open'], row['High'], row['Low'], row['Close'], row['Volume']]
 
-        elif 'Time' in fieldname:
+        if 'Time' in fieldname:
             for row in reader:
                 dt = datetime.strptime(row['Time'], '%Y-%m-%d %H:%M:%S')
                 gmt_time = dt.strftime('%d.%m.%Y %H:%M:%S.000')
                 new_csv_data[gmt_time] = [row['Open'], row['High'], row['Low'], row['Close'], row['Volume']]
 
-        elif 'Gmt time' in fieldname:
+        if 'Gmt time' in fieldname:
             for row in reader:
                 gmt_time = row['Gmt time']
                 new_csv_data[gmt_time] = [row['Open'], row['High'], row['Low'], row['Close'], row['Volume']]
 
 # Sort by timestamp before writing
-sorted_data = sorted(new_csv_data.items(), key=lambda x: datetime.strptime(x[0],format='%d.%m.%Y %H:%M:%S.000'))
+sorted_data = sorted(new_csv_data.items(), key=lambda x: datetime.strptime(x[0], '%d.%m.%Y %H:%M:%S.000'))
+
 
 
 with open('EURUSD_Candlesticks_1_M_BID_01.01.2025-20.02.2026.csv', 'w', newline='') as csvfile:
