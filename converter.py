@@ -39,7 +39,7 @@ for i in range(len(files)):
 # Sort by timestamp before writing
 sorted_data = sorted(new_csv_data.items(), key=lambda x: datetime.strptime(x[0], '%d.%m.%Y %H:%M:%S.000'))
 
-
+print(max(new_csv_data.keys()))
 
 with open('EURUSD_Candlesticks_1_M_BID_01.01.2025-20.02.2026.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
