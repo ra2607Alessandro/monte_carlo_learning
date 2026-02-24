@@ -4,7 +4,7 @@ import numpy as np
 
 # Load and preprocess data
 # parse datetimes (dayfirst True) and drop rows where parsing failed
-df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2025-13.02.2026.csv')
+df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv')
 #if 'Time' not in df.columns:
    #time_col = df.columns[0]
    #df.rename(columns={time_col:'Time'},inplace=True)
