@@ -128,7 +128,7 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
    return None
 
 
-def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=16):
+def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
    """
    Simulate a simple trade starting at `entry_idx`.
 
@@ -253,7 +253,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
-         if rng['size'] < 0.0030:
+         if rng['size'] < 0.0020:
             continue
          #'london',
          for session in ('london','new york'):
