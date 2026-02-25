@@ -253,7 +253,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
-         if rng['size'] < 0.0020:
+         if rng['size'] < 0.0040:
             continue
          #'london',
          for session in ('london','new york'):

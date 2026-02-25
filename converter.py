@@ -4,23 +4,11 @@ from datetime import datetime
 new_csv_data = {}  # <-- dict instead of list, keyed by timestamp
 
 files = [
-    'EURUSD_Candlestick_1_M_BID_01.01.2015-01.01.2016.csv',
-    'EURUSD_Candlestick_1_M_BID_01.01.2016-01.01.2017.csv',
-    'EURUSD_Candlestick_1_M_BID_01.01.2017-01.01.2018.csv',
-    'EURUSD_Candlestick_1_M_BID_01.01.2018-01.01.2019.csv',
-    'EURUSD_Candlestick_1_M_BID_01.01.2019-01.01.2020.csv',
-    'EURUSD_Candlestick_1_M_BID_01.01.2020-01.01.2021.csv',
-    'DAT_MT_EURUSD_M1_2021.csv',
-    'DAT_MT_EURUSD_M1_2022.csv',
-    'DAT_MT_EURUSD_M1_2023.csv',
-    'DAT_MT_EURUSD_M1_2024.csv',
-    'EURUSD_Candlestick_1_M_BID_01.01.2025-06.05.2025.csv',
-    'EURUSD_Candlestick_1_M_BID_05.05.2025-02.09.2025.csv',
-    'EURUSD_Candlestick_1_M_BID_01.09.2025-02.12.2025.csv',
-    'EURUSD_Candlestick_1_M_BID_01.12.2025-19.01.2026.csv',
-    'EURUSD_Candlestick_1_M_BID_19.01.2026-30.01.2026.csv',
-    'DAT_MT_EURUSD_M1_202602.csv',
-    'EURUSD_M1.csv'
+    'DAT_MT_GBPUSD_M1_2022.csv',
+    'DAT_MT_GBPUSD_M1_2023.csv',
+    'DAT_MT_GBPUSD_M1_2024.csv',
+    'DAT_MT_GBPUSD_M1_2025.csv',
+    'DAT_MT_GBPUSD_M1_202602.csv'
 ]
 
 for i in range(len(files)):
@@ -53,7 +41,7 @@ sorted_data = sorted(new_csv_data.items(), key=lambda x: datetime.strptime(x[0],
 
 
 
-with open('EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv', 'w', newline='') as csvfile:
+with open('GBPUSD_Candlesticks_1_M_BID_2022-2026.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(['Gmt time', 'Open', 'High', 'Low', 'Close', 'Volume'])
     print(max(new_csv_data.keys()))
