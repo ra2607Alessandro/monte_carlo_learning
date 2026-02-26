@@ -6,6 +6,14 @@ import numpy as np
 # parse datetimes (dayfirst True) and drop rows where parsing failed
 files = ['EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv','GBPUSD_Candlesticks_1_M_BID_2022-2026.csv']
 daily = pd.read_csv('EUR_USD.csv')
+daily = daily.groupby('Date').agg(
+   High = ('High','max'),
+   Low = ('Low','min'),
+   Close=('Close', 'last')
+   ).reset_index()
+daily['tr'] = daily['High'] -daily['Low']
+daily['atr'] = daily['tr'].rolling(14).mean()
+daily = daily.set_index('Date')
 
 df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv')
 #if 'Time' not in df.columns:
