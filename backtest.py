@@ -257,10 +257,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
       """
       trades_list = []
       total_dates = 0
-
+      df['ema50'] = df['Close'].ewm(span=50,adjust=False).mean()
       for date in sorted(df['date'].unique()):
          past_daily = daily[daily.index < date]
-         df['ema50'] = df['Close'].ewm(span=50,adjust=False).mean()
+         
          total_dates += 1
          asian = get_asian_date(date)
          # prefer morning range if available, else afternoon
@@ -283,10 +283,14 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             entry_idx = br.get('entry_idx')
             entry_price = df.at[entry_idx,'Open']
             if br['direction'] == 'long':
-               if entry_price - rng['high']  > 0.0010 or entry_price < df['ema50'].iloc[-1]:
+               if entry_price - rng['high']  > 0.0010:
+                  continue
+               if entry_price < df.at[entry_idx,'ema50']:
                   continue
             if br['direction'] == 'short':
-               if rng['low'] - entry_price > 0.0010 or entry_price > df['ema50'].iloc[-1]:
+               if rng['low'] - entry_price > 0.0010 :
+                  continue
+               if entry_price > df.at[entry_idx,'ema50']:
                   continue
             if br.get('precision', 0.0) < float(min_confidence):
                continue
