@@ -14,6 +14,7 @@ daily = daily.groupby('Date').agg(
 daily['tr'] = daily['High'] -daily['Low']
 daily['atr'] = daily['tr'].rolling(14).mean()
 daily = daily.set_index('Date')
+daily.index = pd.to_datetime(daily.index).date
 
 df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv')
 #if 'Time' not in df.columns:
@@ -258,15 +259,20 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
       total_dates = 0
 
       for date in sorted(df['date'].unique()):
+         past_daily = daily[daily.index < date]
          total_dates += 1
          asian = get_asian_date(date)
          # prefer morning range if available, else afternoon
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
             continue
-         if rng['size'] < 0.0040:
+         if len(past_daily) < 14:
+           continue
+         recent_atr = past_daily['atr'].iloc[-1]
+         if pd.isna(recent_atr):
             continue
-         #'london',
+         if rng['size'] < 0.5 * recent_atr or rng['size'] > 1.5*recent_atr:
+            continue
          for session in ('london','new york'):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
