@@ -14,7 +14,7 @@ daily = daily.groupby('Date').agg(
 daily['tr'] = daily['High'] -daily['Low']
 daily['atr'] = daily['tr'].rolling(14).mean()
 daily = daily.set_index('Date')
-daily.index = pd.to_datetime(daily.index).date
+daily.index = pd.to_datetime(daily.index,format='mixed').date
 
 df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv')
 #if 'Time' not in df.columns:
@@ -260,6 +260,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
 
       for date in sorted(df['date'].unique()):
          past_daily = daily[daily.index < date]
+         df['ema50'] = df['Close'].ewm(span=50,adjust=False).mean()
          total_dates += 1
          asian = get_asian_date(date)
          # prefer morning range if available, else afternoon
@@ -271,7 +272,9 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          recent_atr = past_daily['atr'].iloc[-1]
          if pd.isna(recent_atr):
             continue
-         if rng['size'] < 0.5 * recent_atr or rng['size'] > 1.5*recent_atr:
+         if rng['size'] < 0.5*recent_atr or rng['size'] > 1.5*recent_atr:
+            continue
+         if rng['size'] < 0.0040:
             continue
          for session in ('london','new york'):
             br = breakouts(rng['high'], rng['low'], session, date)
@@ -280,10 +283,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             entry_idx = br.get('entry_idx')
             entry_price = df.at[entry_idx,'Open']
             if br['direction'] == 'long':
-               if entry_price - rng['high']  > 0.0010:
+               if entry_price - rng['high']  > 0.0010 or entry_price < df['ema50'].iloc[-1]:
                   continue
             if br['direction'] == 'short':
-               if rng['low'] - entry_price > 0.0010:
+               if rng['low'] - entry_price > 0.0010 or entry_price > df['ema50'].iloc[-1]:
                   continue
             if br.get('precision', 0.0) < float(min_confidence):
                continue
