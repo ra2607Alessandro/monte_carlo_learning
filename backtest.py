@@ -258,10 +258,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
       trades_list = []
       total_dates = 0
       no_asian_range = 0
-      range_too_small = 0
+      #range_too_small = 0
       range_outside_atr = 0
       no_breakouts = 0
-      slippage_killed = 0
+      #slippage_killed = 0
       ema_killed = 0
       trades_taken = 0
       df['ema50'] = df['Close'].ewm(span=50,adjust=False).mean()
@@ -280,12 +280,12 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          recent_atr = past_daily['atr'].iloc[-1]
          if pd.isna(recent_atr):
             continue
-         if rng['size'] < 0.5*recent_atr or rng['size'] > 1.5*recent_atr:
+         if rng['size'] < 0.3*recent_atr or rng['size'] > 2.0*recent_atr:
             range_outside_atr += 1
             continue
-         if rng['size'] < 0.0040:
-            range_too_small += 1
-            continue
+         #if rng['size'] < 0.000:
+          #  range_too_small += 1
+            #continue
          for session in ('london','new york'):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
@@ -294,16 +294,16 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             entry_idx = br.get('entry_idx')
             entry_price = df.at[entry_idx,'Open']
             if br['direction'] == 'long':
-               if entry_price - rng['high']  > 0.0010:
-                  slippage_killed += 1
-                  continue
+              # if entry_price - rng['high']  > 0.00010:
+                  #slippage_killed += 1
+                  #continue
                if entry_price < df.at[entry_idx,'ema50']:
                   ema_killed += 1
                   continue
             if br['direction'] == 'short':
-               if rng['low'] - entry_price > 0.0010 :
-                  slippage_killed += 1
-                  continue
+               #if rng['low'] - entry_price > 0.00010 :
+                #  slippage_killed += 1
+                 # continue
                if entry_price > df.at[entry_idx,'ema50']:
                   ema_killed += 1
                   continue
@@ -320,10 +320,10 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
             
       print(f"Total trading days:        {total_dates}")
       print(f"No asian range:            {no_asian_range}")
-      print(f"Range too small (<40pip):  {range_too_small}")
+      #print(f"Range too small (<40pip):  {range_too_small}")
       print(f"Range outside ATR band:    {range_outside_atr}")
       print(f"No breakout found:         {no_breakouts}")
-      print(f"Entry too far from range:  {slippage_killed}")
+      #print(f"Entry too far from range:  {slippage_killed}")
       print(f"EMA filter rejected:       {ema_killed}")
       print(f"Trades taken:              {trades_taken}")
 
