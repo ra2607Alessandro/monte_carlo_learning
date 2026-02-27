@@ -264,7 +264,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
       #slippage_killed = 0
       ema_killed = 0
       trades_taken = 0
-      df['ema50'] = df['Close'].ewm(span=50,adjust=False).mean()
+      df['ema50'] = df['Close'].shift(1).ewm(span=50,adjust=False).mean()
       for date in sorted(df['date'].unique()):
          past_daily = daily[daily.index < date]
          
