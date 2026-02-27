@@ -257,6 +257,13 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
       """
       trades_list = []
       total_dates = 0
+      no_asian_range = 0
+      range_too_small = 0
+      range_outside_atr = 0
+      no_breakouts = 0
+      slippage_killed = 0
+      ema_killed = 0
+      trades_taken = 0
       df['ema50'] = df['Close'].ewm(span=50,adjust=False).mean()
       for date in sorted(df['date'].unique()):
          past_daily = daily[daily.index < date]
@@ -266,6 +273,7 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          # prefer morning range if available, else afternoon
          rng = asian.get('morning') or asian.get('afternoon')
          if not rng or rng['size'] == 0:
+            no_asian_range += 1
             continue
          if len(past_daily) < 14:
            continue
@@ -273,24 +281,31 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          if pd.isna(recent_atr):
             continue
          if rng['size'] < 0.5*recent_atr or rng['size'] > 1.5*recent_atr:
+            range_outside_atr += 1
             continue
          if rng['size'] < 0.0040:
+            range_too_small += 1
             continue
          for session in ('london','new york'):
             br = breakouts(rng['high'], rng['low'], session, date)
             if not br:
+               no_breakouts += 1
                continue
             entry_idx = br.get('entry_idx')
             entry_price = df.at[entry_idx,'Open']
             if br['direction'] == 'long':
                if entry_price - rng['high']  > 0.0010:
+                  slippage_killed += 1
                   continue
                if entry_price < df.at[entry_idx,'ema50']:
+                  ema_killed += 1
                   continue
             if br['direction'] == 'short':
                if rng['low'] - entry_price > 0.0010 :
+                  slippage_killed += 1
                   continue
                if entry_price > df.at[entry_idx,'ema50']:
+                  ema_killed += 1
                   continue
             if br.get('precision', 0.0) < float(min_confidence):
                continue
@@ -299,8 +314,18 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
                continue
             trade = trades(entry_idx, br['direction'], tp_multiplier, rng['size'])
             if trade:
+               trades_taken += 1
                trade.update({'date': date, 'session': session, 'range_size': rng['size'], 'first_break_idx': br['first_break_idx'], 'precision': br['precision']})
                trades_list.append(trade)
+            
+      print(f"Total trading days:        {total_dates}")
+      print(f"No asian range:            {no_asian_range}")
+      print(f"Range too small (<40pip):  {range_too_small}")
+      print(f"Range outside ATR band:    {range_outside_atr}")
+      print(f"No breakout found:         {no_breakouts}")
+      print(f"Entry too far from range:  {slippage_killed}")
+      print(f"EMA filter rejected:       {ema_killed}")
+      print(f"Trades taken:              {trades_taken}")
 
       if not trades_list:
          return pd.DataFrame()
