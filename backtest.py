@@ -309,13 +309,38 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
 
 
 
-def sharpe_ratio(entry_price,pnl):
-   Return = pnl/entry_price
-   mean_return = np.mean(Return)
-   sigma = np.std(Return)
-   sr = mean_return/sigma
-   return sr
-
+def sharpe_ratio(pnl, entry_price, trades_per_year=None):
+    """
+    Chan-style Sharpe Ratio.
+    
+    Parameters:
+        pnl: array of pnl per trade (in price units)
+        entry_price: array of entry prices
+        trades_per_year: if None, estimated from trade count and date range
+    
+    Returns:
+        Annualized Sharpe Ratio
+    """
+    # Step 1: compute per-trade returns
+    returns = pnl / entry_price.flatten()  # flatten to 1D
+    
+    # Step 2: mean and std of per-trade returns
+    mean_return = np.mean(returns)
+    sigma = np.std(returns, ddof=1)  # ddof=1 for sample std, Chan prefers this
+    
+    if sigma == 0:
+        return 0.0
+    
+    # Step 3: annualize
+    # You have ~64 trades over ~11 years = ~5.8 trades/year
+    if trades_per_year is None:
+        n_years = (results['entry_time'].max() - results['entry_time'].min()).days / 365.25
+        trades_per_year = len(returns) / n_years
+    
+    # Annualized Sharpe = per-trade Sharpe * sqrt(trades per year)
+    sr_annualized = (mean_return / sigma) * np.sqrt(trades_per_year)
+    
+    return sr_annualized
 
 results = backtest()
 if results.empty:
