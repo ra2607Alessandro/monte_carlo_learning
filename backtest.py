@@ -161,7 +161,7 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
    entry_idx = int(entry_idx)
    entry_price = float(df.at[entry_idx, 'Open'])
    # default stop loss (caller should override if needed)
-   default_sl = 1.0
+   default_sl = 0.8
    if direction == 'long':
       tp = entry_price + tp_multiplier * range_size
       sl = entry_price - (range_size * default_sl)
