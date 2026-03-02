@@ -26,8 +26,9 @@ def accept(range_high, range_low):
     range_size = abs(range_high - range_low)
     if range_size < 0.3*atr or range_size > 2.0*atr:
         print('Not tradeable')
+        print(f'range size: {range_size}')
     else:
         print('tradeable')
 
-today = accept(range_high=1.18195,range_low=1.17885)
+today = accept(range_high=1.17475,range_low=1.16950)
 print(today)
