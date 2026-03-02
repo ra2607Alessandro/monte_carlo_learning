@@ -96,7 +96,7 @@ output_file = 'EURUSD_Candlesticks_1_M_BID_2015-01_03_2026.csv'
 # No header row, comma-separated, trailing comma at end of each line
 with open(output_file, 'w', newline='') as f:
     for gmt_time, (open_, high, low, close, volume) in sorted_data:
-        f.write(f'{gmt_time},{open_},{high},{low},{close},{volume},\n')
+        f.write(f'{gmt_time},{open_},{high},{low},{close},{volume}\n')
 
 print(f"\nDone! {len(sorted_data)} rows written to {output_file}")
 if sorted_data:
