@@ -16,7 +16,7 @@ daily['atr'] = daily['tr'].rolling(14).mean()
 daily = daily.set_index('Date')
 daily.index = pd.to_datetime(daily.index,format='mixed').date
 
-df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv')
+df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_2015-01_03_2026.csv')
 #if 'Time' not in df.columns:
    #time_col = df.columns[0]
    #df.rename(columns={time_col:'Time'},inplace=True)
