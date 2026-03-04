@@ -20,29 +20,30 @@ class BreakoutBot(EWrapper, EClient):
         self.tp_multiplier   = 2.0
         self.sl_multiplier   = 0.5
 
-        # Asian Range — morning (01:00–07:00 GMT) for London
-        #             — afternoon (08:00–13:00 GMT) for New York
+        # Asian Range — morning (01:00–07:00 GMT) → London session
+        #             — afternoon (08:00–13:00 GMT) → New York session
         self.asian_high_morning   = None
         self.asian_low_morning    = None
         self.asian_high_afternoon = None
         self.asian_low_afternoon  = None
 
-        # ATR — rolling list of 14 daily true ranges
+        # ATR — rolling 14 daily true ranges (each bar = one full trading day)
         self.daily_tr_list = []
         self.daily_atr     = None
 
-        # EMA-50 — exponential, seeded with first-50-bar SMA
+        # EMA-50 — pre-seeded from last 50 historical 1-minute bars (reqId 3)
+        #           then updated exponentially on every live bar
         self.ema_50          = None
-        self.ema_bar_count   = 0
+        self.ema_bar_count   = 0       # tracks how many bars seen; <50 = seeding phase
         self.ema_span        = 50
         self.ema_k           = 2 / (self.ema_span + 1)
-        self.ema_seed_closes = []
+        self.ema_seed_closes = []      # accumulates last 50 historical closes for seed
 
         # State Machine
         self.in_position         = False
         self.potential_direction = None
         self.confirm_closes      = []     # sequential closes after first break candle
-        self.pending_entry       = False  # True = confirmed, waiting for next bar open
+        self.pending_entry       = False  # True = confirmed, enter on next bar open
 
     # ------------------------------------------------------------------ #
     #  CONNECTION                                                          #
@@ -58,14 +59,15 @@ class BreakoutBot(EWrapper, EClient):
     #  1. DATA COLLECTION                                                  #
     # ------------------------------------------------------------------ #
     def historicalData(self, reqId, bar):
-        # reqId 1 — daily bars for 14-period ATR
+        # reqId 1 — daily bars → 14-period ATR
+        #           each bar represents one full trading day (High - Low = daily TR)
         if reqId == 1:
             tr = bar.high - bar.low
             self.daily_tr_list.append(tr)
             if len(self.daily_tr_list) > 14:
                 self.daily_tr_list.pop(0)
 
-        # reqId 2 — 1-minute bars; split into morning / afternoon Asian ranges
+        # reqId 2 — 1-minute bars → split into morning / afternoon Asian ranges
         if reqId == 2:
             bar_dt = (
                 datetime.utcfromtimestamp(bar.date)
@@ -88,14 +90,23 @@ class BreakoutBot(EWrapper, EClient):
                 if self.asian_low_afternoon is None or bar.low < self.asian_low_afternoon:
                     self.asian_low_afternoon = bar.low
 
+        # reqId 3 — last 50 1-minute bars → pre-seed EMA-50
+        #           we keep a rolling window of 50 so only the most recent 50 closes are used
+        if reqId == 3:
+            self.ema_seed_closes.append(bar.close)
+            if len(self.ema_seed_closes) > 50:
+                self.ema_seed_closes.pop(0)
+
     def historicalDataEnd(self, reqId, start, end):
+        # reqId 1 — ATR ready once we have 14 daily bars
         if reqId == 1:
             if len(self.daily_tr_list) == 14:
                 self.daily_atr = np.mean(self.daily_tr_list)
                 print(f"Daily ATR (14-period): {self.daily_atr:.5f}")
             else:
-                print(f"Warning: Only {len(self.daily_tr_list)} daily bars — ATR not ready.")
+                print(f"Warning: Only {len(self.daily_tr_list)} daily bars received — ATR not ready.")
 
+        # reqId 2 — log both Asian ranges
         if reqId == 2:
             if self.asian_high_morning and self.asian_low_morning:
                 morning_size = self.asian_high_morning - self.asian_low_morning
@@ -111,18 +122,29 @@ class BreakoutBot(EWrapper, EClient):
             else:
                 print("Warning: No afternoon Asian range bars found (08:00–13:00 GMT).")
 
+        # reqId 3 — seed EMA from last 50 historical 1-minute closes
+        if reqId == 3:
+            if len(self.ema_seed_closes) == 50:
+                self.ema_50        = np.mean(self.ema_seed_closes)
+                self.ema_bar_count = 50   # signals _update_ema to skip seeding phase
+                print(f"EMA50 pre-seeded from last 50 historical 1m bars: {self.ema_50:.5f}")
+            else:
+                print(f"Warning: Only {len(self.ema_seed_closes)} bars for EMA seed — "
+                      f"EMA will complete seeding from live bars.")
+
     # ------------------------------------------------------------------ #
-    #  2. EMA-50 UPDATE                                                    #
+    #  2. EMA-50 LIVE UPDATE                                               #
     # ------------------------------------------------------------------ #
     def _update_ema(self, close):
         self.ema_bar_count += 1
         if self.ema_bar_count <= self.ema_span:
-            # Seed phase: collect first 50 closes
+            # Seeding phase (only reached if historical pre-seed was incomplete)
             self.ema_seed_closes.append(close)
             if self.ema_bar_count == self.ema_span:
                 self.ema_50 = np.mean(self.ema_seed_closes)
+                print(f"EMA50 seeded from live bars: {self.ema_50:.5f}")
         else:
-            # Live update: EMA = close * k + prev_EMA * (1 - k)
+            # Exponential update: EMA = close * k + prev_EMA * (1 - k)
             self.ema_50 = close * self.ema_k + self.ema_50 * (1 - self.ema_k)
 
     # ------------------------------------------------------------------ #
@@ -140,7 +162,7 @@ class BreakoutBot(EWrapper, EClient):
         if not (is_london or is_ny) or self.in_position:
             return
 
-        # Assign the correct range for the active session
+        # Assign the correct Asian range for the active session
         if is_london:
             active_high = self.asian_high_morning
             active_low  = self.asian_low_morning
@@ -160,7 +182,7 @@ class BreakoutBot(EWrapper, EClient):
             if not (0.3 * self.daily_atr < active_size < 2.0 * self.daily_atr):
                 return
 
-        # If confirmation finished last bar, enter on THIS bar's open
+        # Confirmation finished last bar — enter on THIS bar's open
         if self.pending_entry:
             self.execute_trade(open_, active_high, active_low, active_size)
             self.pending_entry = False
@@ -184,7 +206,7 @@ class BreakoutBot(EWrapper, EClient):
                 self.confirm_closes      = []
             return  # first break candle is not counted as a confirmation candle
 
-        # --- Collect confirmation closes into fixed 15-candle window ---
+        # --- Collect the next 15 closes into the confirmation window ---
         if self.potential_direction == "long":
             self.confirm_closes.append(current_close > range_high)
         else:
@@ -194,7 +216,7 @@ class BreakoutBot(EWrapper, EClient):
         if len(self.confirm_closes) < self.confirm_minutes:
             return
 
-        # --- Evaluate the completed window ---
+        # --- Evaluate the completed 15-candle window ---
         counter   = sum(self.confirm_closes)
         precision = counter / self.confirm_minutes
 
@@ -300,11 +322,17 @@ eurusd.secType  = "CASH"
 eurusd.exchange = "IDEALPRO"
 eurusd.currency = "USD"
 
-# 1-minute bars for today — morning + afternoon ranges extracted inside historicalData()
-app.reqHistoricalData(2, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
-# Daily bars for 14-period ATR
+# reqId 1 — 30 days of daily bars → 14-period ATR (full day High-Low per bar)
 app.reqHistoricalData(1, eurusd, "", "30 D", "1 day", "MIDPOINT", 1, 1, False, [])
-# reqId 3 — last 50 1-minute bars to pre-seed EMA before live stream starts
+
+# reqId 2 — today's 1-minute bars → morning (01-07) and afternoon (08-13) Asian ranges
+app.reqHistoricalData(2, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
+
+# reqId 3 — last 50 1-minute bars → pre-seed EMA-50 before live stream starts
 app.reqHistoricalData(3, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
+
+# Live 5-second bars → drives all session logic and EMA updates
+app.reqRealTimeBars(4, eurusd, 5, "MIDPOINT", True, [])
+
 while True:
     time.sleep(1)
