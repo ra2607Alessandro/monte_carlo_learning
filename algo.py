@@ -18,7 +18,7 @@ class BreakoutBot(EWrapper, EClient):
         self.currency = "USD"
         self.confirm_minutes = 15
         self.tp_multiplier = 2.0
-        self.sl_multiplier = 0.5
+        self.sl_multiplier = 0.8
         
         # State Data
         self.asian_high = None

@@ -270,8 +270,12 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          
          total_dates += 1
          asian = get_asian_date(date)
-         # prefer morning range if available, else afternoon
-         rng = asian.get('morning') or asian.get('afternoon')
+      for session in ('london','new york'):
+         if session == 'london':
+            rng = asian.get('morning')
+         else:
+            rng = asian.get('afternoon')
+         
          if not rng or rng['size'] == 0:
             no_asian_range += 1
             continue
@@ -286,37 +290,36 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          #if rng['size'] < 0.000:
           #  range_too_small += 1
             #continue
-         for session in ('london','new york'):
-            br = breakouts(rng['high'], rng['low'], session, date)
-            if not br:
-               no_breakouts += 1
-               continue
-            entry_idx = br.get('entry_idx')
-            entry_price = df.at[entry_idx,'Open']
-            if br['direction'] == 'long':
+         br = breakouts(rng['high'], rng['low'], session, date)
+         if not br:
+             no_breakouts += 1
+             continue
+         entry_idx = br.get('entry_idx')
+         entry_price = df.at[entry_idx,'Open']
+         if br['direction'] == 'long':
               # if entry_price - rng['high']  > 0.00010:
                   #slippage_killed += 1
                   #continue
-               if entry_price < df.at[entry_idx,'ema50']:
+            if entry_price < df.at[entry_idx,'ema50']:
                   ema_killed += 1
                   continue
-            if br['direction'] == 'short':
+         if br['direction'] == 'short':
                #if rng['low'] - entry_price > 0.00010 :
                 #  slippage_killed += 1
                  # continue
-               if entry_price > df.at[entry_idx,'ema50']:
+            if entry_price > df.at[entry_idx,'ema50']:
                   ema_killed += 1
                   continue
-            if br.get('precision', 0.0) < float(min_confidence):
-               continue
-            entry_idx = br.get('entry_idx')
-            if entry_idx is None:
-               continue
-            trade = trades(entry_idx, br['direction'], tp_multiplier, rng['size'])
-            if trade:
-               trades_taken += 1
-               trade.update({'date': date, 'session': session, 'range_size': rng['size'], 'first_break_idx': br['first_break_idx'], 'precision': br['precision']})
-               trades_list.append(trade)
+         if br.get('precision', 0.0) < float(min_confidence):
+            continue
+         entry_idx = br.get('entry_idx')
+         if entry_idx is None:
+            continue
+         trade = trades(entry_idx, br['direction'], tp_multiplier, rng['size'])
+         if trade:
+            trades_taken += 1
+            trade.update({'date': date, 'session': session, 'range_size': rng['size'], 'first_break_idx': br['first_break_idx'], 'precision': br['precision']})
+            trades_list.append(trade)
             
       print(f"Total trading days:        {total_dates}")
       print(f"No asian range:            {no_asian_range}")
