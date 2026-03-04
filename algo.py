@@ -3,193 +3,308 @@ from ibapi.wrapper import EWrapper
 from ibapi.contract import Contract
 from ibapi.order import Order
 import threading
-import pandas as pd
 import numpy as np
 from datetime import datetime, time as dt_time
 import time
+
 
 class BreakoutBot(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
         self.nextId = None
-        
-        # Strategy Parameters
-        self.symbol = "EUR"
-        self.currency = "USD"
-        self.confirm_minutes = 15
-        self.tp_multiplier = 2.0
-        self.sl_multiplier = 0.8
-        
-        # State Data
-        self.asian_high = None
-        self.asian_low = None
-        self.asian_range_size = None
-        self.daily_atr = None
-        self.ema_50 = None
-        self.live_bars = [] # Stores recent 1m bars for EMA
-        
-        # State Machine
-        self.in_position = False
-        self.confirm_counter = 0
-        self.potential_direction = None
 
+        # Strategy Parameters
+        self.symbol          = "EUR"
+        self.currency        = "USD"
+        self.confirm_minutes = 15
+        self.tp_multiplier   = 2.0
+        self.sl_multiplier   = 0.5
+
+        # Asian Range — morning (01:00–07:00 GMT) for London
+        #             — afternoon (08:00–13:00 GMT) for New York
+        self.asian_high_morning   = None
+        self.asian_low_morning    = None
+        self.asian_high_afternoon = None
+        self.asian_low_afternoon  = None
+
+        # ATR — rolling list of 14 daily true ranges
+        self.daily_tr_list = []
+        self.daily_atr     = None
+
+        # EMA-50 — exponential, seeded with first-50-bar SMA
+        self.ema_50          = None
+        self.ema_bar_count   = 0
+        self.ema_span        = 50
+        self.ema_k           = 2 / (self.ema_span + 1)
+        self.ema_seed_closes = []
+
+        # State Machine
+        self.in_position         = False
+        self.potential_direction = None
+        self.confirm_closes      = []     # sequential closes after first break candle
+        self.pending_entry       = False  # True = confirmed, waiting for next bar open
+
+    # ------------------------------------------------------------------ #
+    #  CONNECTION                                                          #
+    # ------------------------------------------------------------------ #
     def nextValidId(self, orderId):
         self.nextId = orderId
 
     def error(self, reqId, errorCode, errorString, contract):
-        if errorCode not in [2104, 2106, 2158]: # Filter harmless connection messages
+        if errorCode not in [2104, 2106, 2158]:
             print(f"Error {errorCode}: {errorString}")
 
-    # --- 1. DATA COLLECTION ---
+    # ------------------------------------------------------------------ #
+    #  1. DATA COLLECTION                                                  #
+    # ------------------------------------------------------------------ #
     def historicalData(self, reqId, bar):
-        # reqId 1: Daily data for ATR
-        # reqId 2: 1m data for Asian Range
+        # reqId 1 — daily bars for 14-period ATR
         if reqId == 1:
-            # Simple ATR calculation logic from your file
             tr = bar.high - bar.low
-            self.daily_atr = tr # simplified for this example; usually rolling mean of 14
+            self.daily_tr_list.append(tr)
+            if len(self.daily_tr_list) > 14:
+                self.daily_tr_list.pop(0)
+
+        # reqId 2 — 1-minute bars; split into morning / afternoon Asian ranges
         if reqId == 2:
-            if self.asian_high is None or bar.high > self.asian_high: self.asian_high = bar.high
-            if self.asian_low is None or bar.low < self.asian_low: self.asian_low = bar.low
+            bar_dt = (
+                datetime.utcfromtimestamp(bar.date)
+                if isinstance(bar.date, (int, float))
+                else datetime.strptime(bar.date, "%Y%m%d  %H:%M:%S")
+            )
+            h = bar_dt.hour
+
+            # Morning range: 01:00–07:00 GMT → used for London session
+            if 1 <= h <= 7:
+                if self.asian_high_morning is None or bar.high > self.asian_high_morning:
+                    self.asian_high_morning = bar.high
+                if self.asian_low_morning is None or bar.low < self.asian_low_morning:
+                    self.asian_low_morning = bar.low
+
+            # Afternoon range: 08:00–13:00 GMT → used for New York session
+            elif 8 <= h <= 13:
+                if self.asian_high_afternoon is None or bar.high > self.asian_high_afternoon:
+                    self.asian_high_afternoon = bar.high
+                if self.asian_low_afternoon is None or bar.low < self.asian_low_afternoon:
+                    self.asian_low_afternoon = bar.low
 
     def historicalDataEnd(self, reqId, start, end):
+        if reqId == 1:
+            if len(self.daily_tr_list) == 14:
+                self.daily_atr = np.mean(self.daily_tr_list)
+                print(f"Daily ATR (14-period): {self.daily_atr:.5f}")
+            else:
+                print(f"Warning: Only {len(self.daily_tr_list)} daily bars — ATR not ready.")
+
         if reqId == 2:
-            self.asian_range_size = self.asian_high - self.asian_low
-            print(f"Range Calculated: High {self.asian_high}, Low {self.asian_low}, Size {self.asian_range_size}")
+            if self.asian_high_morning and self.asian_low_morning:
+                morning_size = self.asian_high_morning - self.asian_low_morning
+                print(f"Morning Range  (01–07 GMT): High {self.asian_high_morning:.5f}, "
+                      f"Low {self.asian_low_morning:.5f}, Size {morning_size:.5f}")
+            else:
+                print("Warning: No morning Asian range bars found (01:00–07:00 GMT).")
 
-    # --- 2. LIVE BAR LOGIC ---
+            if self.asian_high_afternoon and self.asian_low_afternoon:
+                afternoon_size = self.asian_high_afternoon - self.asian_low_afternoon
+                print(f"Afternoon Range (08–13 GMT): High {self.asian_high_afternoon:.5f}, "
+                      f"Low {self.asian_low_afternoon:.5f}, Size {afternoon_size:.5f}")
+            else:
+                print("Warning: No afternoon Asian range bars found (08:00–13:00 GMT).")
+
+    # ------------------------------------------------------------------ #
+    #  2. EMA-50 UPDATE                                                    #
+    # ------------------------------------------------------------------ #
+    def _update_ema(self, close):
+        self.ema_bar_count += 1
+        if self.ema_bar_count <= self.ema_span:
+            # Seed phase: collect first 50 closes
+            self.ema_seed_closes.append(close)
+            if self.ema_bar_count == self.ema_span:
+                self.ema_50 = np.mean(self.ema_seed_closes)
+        else:
+            # Live update: EMA = close * k + prev_EMA * (1 - k)
+            self.ema_50 = close * self.ema_k + self.ema_50 * (1 - self.ema_k)
+
+    # ------------------------------------------------------------------ #
+    #  3. LIVE BAR LOGIC                                                   #
+    # ------------------------------------------------------------------ #
     def realtimeBar(self, reqId, time, open_, high, low, close, volume, wap, count):
-        # Logic executes every 5 seconds or 1 minute bar
         now_gmt = datetime.utcnow().time()
-        
-        # Calculate EMA50 on the fly
-        self.live_bars.append(close)
-        if len(self.live_bars) > 50:
-            self.live_bars.pop(0)
-            self.ema_50 = np.mean(self.live_bars) # Simplified EMA
 
-        # Only trade if filters are met (ATR check)
-        if self.daily_atr and self.asian_range_size:
-            if not (0.3 * self.daily_atr < self.asian_range_size < 2.0 * self.daily_atr):
-                return # Range is "Outside ATR band" - No Trade
+        # Update EMA on every bar regardless of session
+        self._update_ema(close)
 
-        # SESSION CHECK: London (08:00-10:00 GMT) or NY (14:00-17:00 GMT)
         is_london = dt_time(8, 0) <= now_gmt <= dt_time(10, 0)
-        is_ny = dt_time(14, 0) <= now_gmt <= dt_time(17, 0)
+        is_ny     = dt_time(14, 0) <= now_gmt <= dt_time(17, 0)
 
-        if (is_london or is_ny) and not self.in_position:
-            self.check_breakout(close)
+        if not (is_london or is_ny) or self.in_position:
+            return
 
-    def check_breakout(self, current_close):
-        # BREAKOUT DETECTION
-        if current_close > self.asian_high and self.potential_direction is None:
-            print("Breakout Long Detected. Starting 15m confirmation...")
-            self.potential_direction = "long"
-            self.confirm_counter = 0
-        elif current_close < self.asian_low and self.potential_direction is None:
-            print("Breakout Short Detected. Starting 15m confirmation...")
-            self.potential_direction = "short"
-            self.confirm_counter = 0
+        # Assign the correct range for the active session
+        if is_london:
+            active_high = self.asian_high_morning
+            active_low  = self.asian_low_morning
+        else:  # New York
+            active_high = self.asian_high_afternoon
+            active_low  = self.asian_low_afternoon
 
-        # CONFIRMATION LOGIC (The 15 candles check)
+        # Guard: range must exist and be non-zero
+        if active_high is None or active_low is None:
+            return
+        active_size = active_high - active_low
+        if active_size == 0:
+            return
+
+        # ATR band filter
+        if self.daily_atr:
+            if not (0.3 * self.daily_atr < active_size < 2.0 * self.daily_atr):
+                return
+
+        # If confirmation finished last bar, enter on THIS bar's open
+        if self.pending_entry:
+            self.execute_trade(open_, active_high, active_low, active_size)
+            self.pending_entry = False
+            return
+
+        self.check_breakout(close, active_high, active_low)
+
+    # ------------------------------------------------------------------ #
+    #  4. BREAKOUT DETECTION & CONFIRMATION                                #
+    # ------------------------------------------------------------------ #
+    def check_breakout(self, current_close, range_high, range_low):
+        # --- First break detection ---
+        if self.potential_direction is None:
+            if current_close > range_high:
+                print("Breakout Long detected — collecting 15 confirmation closes...")
+                self.potential_direction = "long"
+                self.confirm_closes      = []
+            elif current_close < range_low:
+                print("Breakout Short detected — collecting 15 confirmation closes...")
+                self.potential_direction = "short"
+                self.confirm_closes      = []
+            return  # first break candle is not counted as a confirmation candle
+
+        # --- Collect confirmation closes into fixed 15-candle window ---
         if self.potential_direction == "long":
-            if current_close > self.asian_high:
-                self.confirm_counter += 1
-            else:
-                self.potential_direction = None # Reset if a candle closes back in range
-        
-        if self.potential_direction == "short":
-            if current_close < self.asian_low:
-                self.confirm_counter += 1
-            else:
-                self.potential_direction = None
+            self.confirm_closes.append(current_close > range_high)
+        else:
+            self.confirm_closes.append(current_close < range_low)
 
-        # EXECUTION (After 15 minutes of staying outside range)
-        if self.confirm_counter >= self.confirm_minutes:
-            self.execute_trade(current_close)
+        # Still building the window
+        if len(self.confirm_closes) < self.confirm_minutes:
+            return
 
-    def execute_trade(self, entry_price):
-        # EMA FILTER check
+        # --- Evaluate the completed window ---
+        counter   = sum(self.confirm_closes)
+        precision = counter / self.confirm_minutes
+
+        if precision < 1.0:
+            print(f"Confirmation failed ({counter}/{self.confirm_minutes}). Resetting.")
+            self._reset_breakout()
+            return
+
+        print(f"Breakout CONFIRMED ({counter}/{self.confirm_minutes}). "
+              f"Entering on next bar open...")
+        self.pending_entry = True
+
+    def _reset_breakout(self):
+        self.potential_direction = None
+        self.confirm_closes      = []
+        self.pending_entry       = False
+
+    # ------------------------------------------------------------------ #
+    #  5. TRADE EXECUTION                                                  #
+    # ------------------------------------------------------------------ #
+    def execute_trade(self, entry_price, range_high, range_low, range_size):
+        # EMA filter
+        if self.ema_50 is None:
+            print("EMA not ready — skipping trade.")
+            self._reset_breakout()
+            return
         if self.potential_direction == "long" and entry_price < self.ema_50:
-            print("Trade rejected: Entry below EMA50")
-            self.potential_direction = None
+            print(f"Trade rejected: Long entry {entry_price:.5f} below EMA50 {self.ema_50:.5f}")
+            self._reset_breakout()
             return
         if self.potential_direction == "short" and entry_price > self.ema_50:
-            print("Trade rejected: Entry above EMA50")
-            self.potential_direction = None
+            print(f"Trade rejected: Short entry {entry_price:.5f} above EMA50 {self.ema_50:.5f}")
+            self._reset_breakout()
             return
 
-        print(f"TRADING SIGNAL: {self.potential_direction} at {entry_price}")
-        self.place_bracket_order(entry_price)
+        print(f"TRADING SIGNAL: {self.potential_direction} at {entry_price:.5f}")
+        self.place_bracket_order(entry_price, range_size)
         self.in_position = True
+        self._reset_breakout()
 
-    def place_bracket_order(self, entry_price):
-        contract = Contract()
-        contract.symbol = self.symbol
-        contract.secType = "CASH" # Forex
+    # ------------------------------------------------------------------ #
+    #  6. ORDER PLACEMENT                                                  #
+    # ------------------------------------------------------------------ #
+    def place_bracket_order(self, entry_price, range_size):
+        contract          = Contract()
+        contract.symbol   = self.symbol
+        contract.secType  = "CASH"
         contract.exchange = "IDEALPRO"
         contract.currency = self.currency
 
-        # Calculate TP/SL from your multipliers
         if self.potential_direction == "long":
-            tp = entry_price + (self.tp_multiplier * self.asian_range_size)
-            sl = entry_price - (self.sl_multiplier * self.asian_range_size)
+            tp     = entry_price + (self.tp_multiplier * range_size)
+            sl     = entry_price - (self.sl_multiplier * range_size)
             action = "BUY"
         else:
-            tp = entry_price - (self.tp_multiplier * self.asian_range_size)
-            sl = entry_price + (self.sl_multiplier * self.asian_range_size)
+            tp     = entry_price - (self.tp_multiplier * range_size)
+            sl     = entry_price + (self.sl_multiplier * range_size)
             action = "SELL"
 
-        # Main Order
-        parent = Order()
-        parent.orderId = self.nextId
-        parent.action = action
-        parent.orderType = "MKT"
-        parent.totalQuantity = 20000 # 20k units
-        parent.transmit = False
+        # Parent market order
+        parent               = Order()
+        parent.orderId       = self.nextId
+        parent.action        = action
+        parent.orderType     = "MKT"
+        parent.totalQuantity = 20000
+        parent.transmit      = False
 
         # Stop Loss
-        sl_order = Order()
-        sl_order.parentId = parent.orderId
-        sl_order.action = "SELL" if action == "BUY" else "BUY"
-        sl_order.orderType = "STP"
-        sl_order.auxPrice = round(sl, 5)
+        sl_order               = Order()
+        sl_order.parentId      = parent.orderId
+        sl_order.action        = "SELL" if action == "BUY" else "BUY"
+        sl_order.orderType     = "STP"
+        sl_order.auxPrice      = round(sl, 5)
         sl_order.totalQuantity = parent.totalQuantity
-        sl_order.transmit = False
+        sl_order.transmit      = False
 
         # Take Profit
-        tp_order = Order()
-        tp_order.parentId = parent.orderId
-        tp_order.action = "SELL" if action == "BUY" else "BUY"
-        tp_order.orderType = "LMT"
-        tp_order.lmtPrice = round(tp, 5)
+        tp_order               = Order()
+        tp_order.parentId      = parent.orderId
+        tp_order.action        = "SELL" if action == "BUY" else "BUY"
+        tp_order.orderType     = "LMT"
+        tp_order.lmtPrice      = round(tp, 5)
         tp_order.totalQuantity = parent.totalQuantity
-        tp_order.transmit = True # Finalize bracket
+        tp_order.transmit      = True  # transmits the entire bracket
 
-        self.placeOrder(parent.orderId, contract, parent)
+        self.placeOrder(parent.orderId,     contract, parent)
         self.placeOrder(parent.orderId + 1, contract, sl_order)
         self.placeOrder(parent.orderId + 2, contract, tp_order)
         self.nextId += 3
 
-# --- Launch Bot ---
+
+# ------------------------------------------------------------------ #
+#  LAUNCH                                                             #
+# ------------------------------------------------------------------ #
 app = BreakoutBot()
 app.connect("127.0.0.1", 7497, clientId=1)
 threading.Thread(target=app.run, daemon=True).start()
 time.sleep(2)
 
-# Initialization: Get Asian Range (1:00 to 7:00 GMT today) and Daily ATR
-# In a real scenario, you'd calculate these every morning.
-eurusd = Contract()
-eurusd.symbol = "EUR"
-eurusd.secType = "CASH"
+eurusd          = Contract()
+eurusd.symbol   = "EUR"
+eurusd.secType  = "CASH"
 eurusd.exchange = "IDEALPRO"
 eurusd.currency = "USD"
 
-# Requesting Range for today's Asian Session
+# 1-minute bars for today — morning + afternoon ranges extracted inside historicalData()
 app.reqHistoricalData(2, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
-# Requesting Daily data for ATR filter
+# Daily bars for 14-period ATR
 app.reqHistoricalData(1, eurusd, "", "30 D", "1 day", "MIDPOINT", 1, 1, False, [])
-# Start Live Stream
+# Live 5-second bars
 app.reqRealTimeBars(3, eurusd, 5, "MIDPOINT", True, [])
 
 while True:
