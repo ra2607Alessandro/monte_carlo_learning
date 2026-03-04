@@ -304,8 +304,7 @@ eurusd.currency = "USD"
 app.reqHistoricalData(2, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
 # Daily bars for 14-period ATR
 app.reqHistoricalData(1, eurusd, "", "30 D", "1 day", "MIDPOINT", 1, 1, False, [])
-# Live 5-second bars
-app.reqRealTimeBars(3, eurusd, 5, "MIDPOINT", True, [])
-
+# reqId 3 — last 50 1-minute bars to pre-seed EMA before live stream starts
+app.reqHistoricalData(3, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
 while True:
     time.sleep(1)

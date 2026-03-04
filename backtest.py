@@ -270,70 +270,72 @@ def backtest(tp_multiplier=2.0, min_confidence=1.0):
          
          total_dates += 1
          asian = get_asian_date(date)
-      for session in ('london','new york'):
-         if session == 'london':
-            rng = asian.get('morning')
-         else:
-            rng = asian.get('afternoon')
+         for session in ('london','new york'):
+            if session == 'london':
+             rng = asian.get('morning')
+            if session == 'new york':
+              rng = asian.get('afternoon')
+            else:
+              continue
          
-         if not rng or rng['size'] == 0:
-            no_asian_range += 1
-            continue
-         if len(past_daily) < 14:
-           continue
-         recent_atr = past_daily['atr'].iloc[-1]
-         if pd.isna(recent_atr):
-            continue
-         if rng['size'] < 0.3*recent_atr or rng['size'] > 2.0*recent_atr:
-            range_outside_atr += 1
-            continue
+            if not rng or rng['size'] == 0:
+              no_asian_range += 1
+              continue
+            if len(past_daily) < 14:
+               continue
+            recent_atr = past_daily['atr'].iloc[-1]
+            if pd.isna(recent_atr):
+               continue
+            if rng['size'] < 0.3*recent_atr or rng['size'] > 2.0*recent_atr:
+               range_outside_atr += 1
+               continue
          #if rng['size'] < 0.000:
           #  range_too_small += 1
             #continue
-         br = breakouts(rng['high'], rng['low'], session, date)
-         if not br:
-             no_breakouts += 1
-             continue
-         entry_idx = br.get('entry_idx')
-         entry_price = df.at[entry_idx,'Open']
-         if br['direction'] == 'long':
+            br = breakouts(rng['high'], rng['low'], session, date)
+            if not br:
+              no_breakouts += 1
+              continue
+            entry_idx = br.get('entry_idx')
+            entry_price = df.at[entry_idx,'Open']
+            if br['direction'] == 'long':
               # if entry_price - rng['high']  > 0.00010:
                   #slippage_killed += 1
                   #continue
-            if entry_price < df.at[entry_idx,'ema50']:
+               if entry_price < df.at[entry_idx,'ema50']:
                   ema_killed += 1
                   continue
-         if br['direction'] == 'short':
+            if br['direction'] == 'short':
                #if rng['low'] - entry_price > 0.00010 :
                 #  slippage_killed += 1
                  # continue
-            if entry_price > df.at[entry_idx,'ema50']:
+               if entry_price > df.at[entry_idx,'ema50']:
                   ema_killed += 1
                   continue
-         if br.get('precision', 0.0) < float(min_confidence):
-            continue
-         entry_idx = br.get('entry_idx')
-         if entry_idx is None:
-            continue
-         trade = trades(entry_idx, br['direction'], tp_multiplier, rng['size'])
-         if trade:
-            trades_taken += 1
-            trade.update({'date': date, 'session': session, 'range_size': rng['size'], 'first_break_idx': br['first_break_idx'], 'precision': br['precision']})
-            trades_list.append(trade)
+            if br.get('precision', 0.0) < float(min_confidence):
+               continue
+            entry_idx = br.get('entry_idx')
+            if entry_idx is None:
+               continue
+            trade = trades(entry_idx, br['direction'], tp_multiplier, rng['size'])
+            if trade:
+               trades_taken += 1
+               trade.update({'date': date, 'session': session, 'range_size': rng['size'], 'first_break_idx': br['first_break_idx'], 'precision': br['precision']})
+               trades_list.append(trade)
             
-      print(f"Total trading days:        {total_dates}")
-      print(f"No asian range:            {no_asian_range}")
+            print(f"Total trading days:        {total_dates}")
+            print(f"No asian range:            {no_asian_range}")
       #print(f"Range too small (<40pip):  {range_too_small}")
-      print(f"Range outside ATR band:    {range_outside_atr}")
-      print(f"No breakout found:         {no_breakouts}")
+            print(f"Range outside ATR band:    {range_outside_atr}")
+            print(f"No breakout found:         {no_breakouts}")
       #print(f"Entry too far from range:  {slippage_killed}")
-      print(f"EMA filter rejected:       {ema_killed}")
-      print(f"Trades taken:              {trades_taken}")
+            print(f"EMA filter rejected:       {ema_killed}")
+            print(f"Trades taken:              {trades_taken}")
 
-      if not trades_list:
-         return pd.DataFrame()
-      else: 
-         return pd.DataFrame(trades_list)
+            if not trades_list:
+               return pd.DataFrame()
+            else: 
+              return pd.DataFrame(trades_list)
 
 
 
