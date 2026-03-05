@@ -8,6 +8,7 @@ from datetime import datetime, time as dt_time
 import time
 
 
+
 class BreakoutBot(EWrapper, EClient):
     def __init__(self):
         EClient.__init__(self, self)
@@ -18,7 +19,7 @@ class BreakoutBot(EWrapper, EClient):
         self.currency        = "USD"
         self.confirm_minutes = 15
         self.tp_multiplier   = 2.0
-        self.sl_multiplier   = 0.5
+        self.sl_multiplier   = 0.8
 
         # Asian Range — morning (01:00–07:00 GMT) → London session
         #             — afternoon (08:00–13:00 GMT) → New York session
@@ -51,7 +52,7 @@ class BreakoutBot(EWrapper, EClient):
     def nextValidId(self, orderId):
         self.nextId = orderId
 
-    def error(self, reqId, errorCode, errorString, contract):
+    def error(self, reqId, errorCode, errorString, advancedOrderRejectJson="", contract=None):
         if errorCode not in [2104, 2106, 2158]:
             print(f"Error {errorCode}: {errorString}")
 
@@ -69,11 +70,13 @@ class BreakoutBot(EWrapper, EClient):
 
         # reqId 2 — 1-minute bars → split into morning / afternoon Asian ranges
         if reqId == 2:
-            bar_dt = (
-                datetime.utcfromtimestamp(bar.date)
-                if isinstance(bar.date, (int, float))
-                else datetime.strptime(bar.date, "%Y%m%d  %H:%M:%S")
-            )
+            if isinstance(bar.date, (int, float)):
+              bar_dt = datetime.fromtimestamp(bar.date, tz=timezone.utc)
+            else:
+              date_str = bar.date.strip().split(" ")[0] + " " + bar.date.strip().split(" ")[1]
+              bar_dt = datetime.strptime(date_str, "%Y%m%d %H:%M:%S")
+
+            
             h = bar_dt.hour
 
             # Morning range: 01:00–07:00 GMT → used for London session
@@ -151,7 +154,7 @@ class BreakoutBot(EWrapper, EClient):
     #  3. LIVE BAR LOGIC                                                   #
     # ------------------------------------------------------------------ #
     def realtimeBar(self, reqId, time, open_, high, low, close, volume, wap, count):
-        now_gmt = datetime.utcnow().time()
+        now_gmt = datetime.now().time()
 
         # Update EMA on every bar regardless of session
         self._update_ema(close)
@@ -281,7 +284,7 @@ class BreakoutBot(EWrapper, EClient):
         parent.orderId       = self.nextId
         parent.action        = action
         parent.orderType     = "MKT"
-        parent.totalQuantity = 20000
+        parent.totalQuantity = 1000
         parent.transmit      = False
 
         # Stop Loss
@@ -314,7 +317,16 @@ class BreakoutBot(EWrapper, EClient):
 app = BreakoutBot()
 app.connect("127.0.0.1", 7497, clientId=1)
 threading.Thread(target=app.run, daemon=True).start()
-time.sleep(2)
+timeout = 10
+while app.nextId is None and timeout > 0:
+    time.sleep(0.5)
+    timeout -= 0.5
+
+if app.nextId is None:
+    print("Failed to connect — check TWS is running and API is enabled.")
+    exit()
+
+print(f"Connected. Next valid order ID: {app.nextId}")
 
 eurusd          = Contract()
 eurusd.symbol   = "EUR"

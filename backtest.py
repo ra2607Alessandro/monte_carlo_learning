@@ -124,7 +124,7 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
 
    entry_idx   = int(entry_idx)
    entry_price = float(df.at[entry_idx, 'Open'])
-   default_sl  = 0.5
+   default_sl  = 0.8
 
    if direction == 'long':
       tp = entry_price + tp_multiplier * range_size
