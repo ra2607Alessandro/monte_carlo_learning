@@ -4,7 +4,7 @@ from ibapi.contract import Contract
 from ibapi.order import Order
 import threading
 import numpy as np
-from datetime import datetime, time as dt_time
+from datetime import datetime,timezone, time as dt_time
 import time
 
 
@@ -70,24 +70,25 @@ class BreakoutBot(EWrapper, EClient):
 
         # reqId 2 — 1-minute bars → split into morning / afternoon Asian ranges
         if reqId == 2:
-            if isinstance(bar.date, (int, float)):
-              bar_dt = datetime.fromtimestamp(bar.date, tz=timezone.utc)
-            else:
-              date_str = bar.date.strip().split(" ")[0] + " " + bar.date.strip().split(" ")[1]
-              bar_dt = datetime.strptime(date_str, "%Y%m%d %H:%M:%S")
+           parts = bar.date.strip().split()
+           bar_dt = datetime.strptime(parts[0] + " " + parts[1], "%Y%m%d %H:%M:%S")
+           h = bar_dt.hour
+           today = datetime.now(timezone.utc).date()
+           bar_date = bar_dt.date()
 
-            
-            h = bar_dt.hour
+           if bar_date != today:
+              return  # ignore bars from previous day
+
 
             # Morning range: 01:00–07:00 GMT → used for London session
-            if 1 <= h <= 7:
+           if 1 <= h <= 7:
                 if self.asian_high_morning is None or bar.high > self.asian_high_morning:
                     self.asian_high_morning = bar.high
                 if self.asian_low_morning is None or bar.low < self.asian_low_morning:
                     self.asian_low_morning = bar.low
 
             # Afternoon range: 08:00–13:00 GMT → used for New York session
-            elif 8 <= h <= 13:
+           elif 8 <= h <= 13:
                 if self.asian_high_afternoon is None or bar.high > self.asian_high_afternoon:
                     self.asian_high_afternoon = bar.high
                 if self.asian_low_afternoon is None or bar.low < self.asian_low_afternoon:
@@ -338,7 +339,7 @@ eurusd.currency = "USD"
 app.reqHistoricalData(1, eurusd, "", "30 D", "1 day", "MIDPOINT", 1, 1, False, [])
 
 # reqId 2 — today's 1-minute bars → morning (01-07) and afternoon (08-13) Asian ranges
-app.reqHistoricalData(2, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
+app.reqHistoricalData(2, eurusd, "", "2 D", "1 min", "MIDPOINT", 1, 1, False, [])
 
 # reqId 3 — last 50 1-minute bars → pre-seed EMA-50 before live stream starts
 app.reqHistoricalData(3, eurusd, "", "1 D", "1 min", "MIDPOINT", 1, 1, False, [])
