@@ -323,7 +323,10 @@ else:
       entry_price=results[['entry_price']].values,
       pnl=results['pnl'].values
    )
+   T_stat = Sharpe_ratio * np.sqrt(int(2026 - 2015))
    print(f'exit reasons:\n{exit_reasons}')
    print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate:.3f}')
    print(f'Total P&L: {total_pnl:.5f}')
    print(f'Sharpe Ratio: {Sharpe_ratio:.5f}')
+   print(f'T statistic: {T_stat:5f}')
+   
