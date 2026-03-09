@@ -117,6 +117,13 @@ def breakouts(range_high, range_low, session, date, confirm_minutes=CONFIRM_MINU
 def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
    """
    Simulate a trade starting at `entry_idx`.
+
+   Risk rules applied inside the candle loop:
+     - Rule 1 (Peak Profit Lock): if unrealized PnL reaches 70% of TP distance
+       and then retraces to ≤30%, close the trade and lock in the gain.
+     - Rule 2 (Breakeven Stop): once price moves 0.5× range_size in our favor,
+       ratchet the SL to entry price so we can never lose on this trade.
+
    Returns a dict with entry/exit prices, pnl, duration and exit_reason.
    """
    if entry_idx is None or entry_idx >= len(df):
@@ -142,11 +149,41 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
    exit_price       = df.at[entry_idx, 'Close']
    max_hold_minutes = max_hold_hours * 60
 
+   # ── Rule 1: Peak Profit Lock ───────────────────────────────────────────────
+   peak_pnl    = 0.0
+   tp_distance = abs(tp - entry_price)
+   # ──────────────────────────────────────────────────────────────────────────
+
    while i < len(df) and minutes < max_hold_minutes and hours < max_hold_hours:
       o = float(df.at[i, 'Open'])
       h = float(df.at[i, 'High'])
       l = float(df.at[i, 'Low'])
       c = float(df.at[i, 'Close'])
+
+      # ── Rule 1: update peak unrealized PnL using candle High/Low ────────────
+      if direction == 'long':
+         unrealized_peak = h - entry_price
+      else:
+         unrealized_peak = entry_price - l
+      peak_pnl = max(peak_pnl, unrealized_peak)
+
+      # If we've reached 70% of TP distance, don't let it fall below 30%
+      if peak_pnl >= 0.70 * tp_distance:
+         current_unrealized = (c - entry_price) if direction == 'long' else (entry_price - c)
+         if current_unrealized <= 0.30 * tp_distance:
+            exit_price  = c
+            exit_reason = 'trail_lock'
+            break
+      # ────────────────────────────────────────────────────────────────────────
+
+      # ── Rule 2: Breakeven Stop ───────────────────────────────────────────────
+      if direction == 'long' and l > entry_price:
+         if (h - entry_price) >= (range_size * 0.5):
+            sl = max(sl, entry_price)   # ratchet up to entry, never back down
+      elif direction == 'short' and h < entry_price:
+         if (entry_price - l) >= (range_size * 0.5):
+            sl = min(sl, entry_price)   # ratchet down to entry, never back up
+      # ────────────────────────────────────────────────────────────────────────
 
       if direction == 'long':
          hit_tp = h >= tp
@@ -329,4 +366,3 @@ else:
    print(f'Total P&L: {total_pnl:.5f}')
    print(f'Sharpe Ratio: {Sharpe_ratio:.5f}')
    print(f'T statistic: {T_stat:5f}')
-   
