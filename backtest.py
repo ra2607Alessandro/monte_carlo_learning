@@ -15,7 +15,7 @@ daily['atr'] = daily['tr'].rolling(14).mean()
 daily = daily.set_index('Date')
 daily.index = pd.to_datetime(daily.index, format='mixed').date
 
-df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_2015-01_03_2026.csv')
+df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_2015-01_01_2021.csv')
 df['Gmt time'] = pd.to_datetime(df['Gmt time'], errors='coerce')
 df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
 df['date'] = df['Gmt time'].dt.date
@@ -150,8 +150,8 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
    max_hold_minutes = max_hold_hours * 60
 
    # ── Rule 1: Peak Profit Lock ───────────────────────────────────────────────
-   peak_pnl    = 0.0
-   tp_distance = abs(tp - entry_price)
+   #peak_pnl    = 0.0
+   #tp_distance = abs(tp - entry_price)
    # ──────────────────────────────────────────────────────────────────────────
 
    while i < len(df) and minutes < max_hold_minutes and hours < max_hold_hours:
@@ -161,28 +161,28 @@ def trades(entry_idx, direction, tp_multiplier, range_size, max_hold_hours=10):
       c = float(df.at[i, 'Close'])
 
       # ── Rule 1: update peak unrealized PnL using candle High/Low ────────────
-      if direction == 'long':
-         unrealized_peak = h - entry_price
-      else:
-         unrealized_peak = entry_price - l
-      peak_pnl = max(peak_pnl, unrealized_peak)
+      #if direction == 'long':
+       #  unrealized_peak = h - entry_price
+      #else:
+       #  unrealized_peak = entry_price - l
+      #peak_pnl = max(peak_pnl, unrealized_peak)
 
       # If we've reached 70% of TP distance, don't let it fall below 30%
-      if peak_pnl >= 0.70 * tp_distance:
-         current_unrealized = (c - entry_price) if direction == 'long' else (entry_price - c)
-         if current_unrealized <= 0.30 * tp_distance:
-            exit_price  = c
-            exit_reason = 'trail_lock'
-            break
+      #if peak_pnl >= 0.70 * tp_distance:
+       #  current_unrealized = (c - entry_price) if direction == 'long' else (entry_price - c)
+        # if current_unrealized <= 0.30 * tp_distance:
+         #   exit_price  = c
+          #  exit_reason = 'trail_lock'
+           # break
       # ────────────────────────────────────────────────────────────────────────
 
       # ── Rule 2: Breakeven Stop ───────────────────────────────────────────────
-      if direction == 'long' and l > entry_price:
-         if (h - entry_price) >= (range_size * 0.5):
-            sl = max(sl, entry_price)   # ratchet up to entry, never back down
-      elif direction == 'short' and h < entry_price:
-         if (entry_price - l) >= (range_size * 0.5):
-            sl = min(sl, entry_price)   # ratchet down to entry, never back up
+      # if  direction == 'long' and l > entry_price:
+       #  if (h - entry_price) >= (range_size * 0.5):
+        #    sl = max(sl, entry_price)   # ratchet up to entry, never back down
+      #elif direction == 'short' and h < entry_price:
+       #  if (entry_price - l) >= (range_size * 0.5):
+        #    sl = min(sl, entry_price)   # ratchet down to entry, never back up
       # ────────────────────────────────────────────────────────────────────────
 
       if direction == 'long':
