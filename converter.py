@@ -4,13 +4,16 @@ from datetime import datetime
 
 new_csv_data = {}  # keyed by timestamp to avoid duplicates
 
-files = [
+files_1 = [
     'EURUSD_Candlestick_1_M_BID_01.01.2015-01.01.2016.csv',
     'EURUSD_Candlestick_1_M_BID_01.01.2016-01.01.2017.csv',
     'EURUSD_Candlestick_1_M_BID_01.01.2017-01.01.2018.csv',
     'EURUSD_Candlestick_1_M_BID_01.01.2018-01.01.2019.csv',
     'EURUSD_Candlestick_1_M_BID_01.01.2019-01.01.2020.csv',
     'EURUSD_Candlestick_1_M_BID_01.01.2020-01.01.2021.csv',
+]
+
+files_2 = [
     'DAT_MT_EURUSD_M1_2021.csv',
     'DAT_MT_EURUSD_M1_2022.csv',
     'DAT_MT_EURUSD_M1_2023.csv',
@@ -34,7 +37,7 @@ def normalize_gmt(ts):
             continue
     raise ValueError(f"Unrecognized timestamp format: '{ts}'")
 
-for filepath in files:
+for filepath in files_2:
     delimiter = detect_delimiter(filepath)
     print(f"Processing: {filepath} | delimiter: {'TAB' if delimiter == chr(9) else 'COMMA'}")
 
@@ -91,7 +94,7 @@ sorted_data = sorted(
     key=lambda x: datetime.strptime(x[0], '%d.%m.%Y %H:%M:%S.000')
 )
 
-output_file = 'EURUSD_Candlesticks_1_M_BID_2015-01_03_2026.csv'
+output_file = 'EURUSD_Candlesticks_1_M_BID_2021-01_03_2026.csv'
 # Output format: DD.MM.YYYY HH:MM:SS.000,Open,High,Low,Close,Volume,
 # No header row, comma-separated, trailing comma at end of each line
 with open(output_file, 'w', newline='') as f:
