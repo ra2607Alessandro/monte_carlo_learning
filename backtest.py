@@ -3,7 +3,18 @@ import datetime
 import numpy as np
 
 # Load and preprocess data
-files = ['EURUSD_Candlesticks_1_M_BID_01.01.2015-20.02.2026.csv','GBPUSD_Candlesticks_1_M_BID_2022-2026.csv']
+files = ['EURUSD_Candlestick_1_M_BID_01.01.2015-01.01.2016.csv',
+         'EURUSD_Candlestick_1_M_BID_01.01.2016-01.01.2017.csv',
+         'EURUSD_Candlestick_1_M_BID_01.01.2017-01.01.2018.csv',
+         'EURUSD_Candlestick_1_M_BID_01.01.2018-01.01.2019.csv',
+         'EURUSD_Candlestick_1_M_BID_01.01.2019-01.01.2020.csv',
+         'EurUsd2020_2021.csv',
+         'DAT_MT_EURUSD_M1_2021.csv',
+         'DAT_MT_EURUSD_M1_2022.csv',
+         'DAT_MT_EURUSD_M1_2023.csv',
+         'DAT_MT_EURUSD_M1_2024.csv',
+         'EURUSD_Candlesticks_1_M_BID_01.01.2025-20.02.2026.csv'
+         ]
 daily = pd.read_csv('EUR_USD.csv')
 daily = daily.groupby('Date').agg(
    High = ('High','max'),
@@ -15,7 +26,7 @@ daily['atr'] = daily['tr'].rolling(14).mean()
 daily = daily.set_index('Date')
 daily.index = pd.to_datetime(daily.index, format='mixed').date
 
-df = pd.read_csv('EURUSD_Candlesticks_1_M_BID_2015-01_01_2021.csv')
+df = pd.read_csv('DAT_MT_EURUSD_M1_2021.csv')
 df['Gmt time'] = pd.to_datetime(df['Gmt time'], errors='coerce')
 df = df.dropna(subset=['Gmt time']).sort_values('Gmt time').reset_index(drop=True)
 df['date'] = df['Gmt time'].dt.date
@@ -364,5 +375,5 @@ else:
    print(f'exit reasons:\n{exit_reasons}')
    print(f'Trades: {len(results)}, Wins: {len(wins)}, Winrate: {winrate:.3f}')
    print(f'Total P&L: {total_pnl:.5f}')
-   print(f'Sharpe Ratio: {Sharpe_ratio:.5f}')
+   print(f'Sharpe Ratio 2021: {Sharpe_ratio:.5f}')
    print(f'T statistic: {T_stat:5f}')

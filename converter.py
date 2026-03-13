@@ -15,12 +15,10 @@ files_1 = [
 
 files_2 = [
     'DAT_MT_EURUSD_M1_2021.csv',
-    'DAT_MT_EURUSD_M1_2022.csv',
-    'DAT_MT_EURUSD_M1_2023.csv',
-    'DAT_MT_EURUSD_M1_2024.csv',
-    'EURUSD_Candlesticks_1_M_BID_01.01.2025-13.02.2026.csv',
-    'EURUSD_M1 (1).csv'
 ]
+#'DAT_MT_EURUSD_M1_2022.csv',
+#    'DAT_MT_EURUSD_M1_2023.csv',
+#    'DAT_MT_EURUSD_M1_2024.csv',
 
 def detect_delimiter(filepath):
     """Detect whether file uses tab or comma as delimiter."""
@@ -94,7 +92,7 @@ sorted_data = sorted(
     key=lambda x: datetime.strptime(x[0], '%d.%m.%Y %H:%M:%S.000')
 )
 
-output_file = 'EURUSD_Candlesticks_1_M_BID_2021-01_03_2026.csv'
+output_file = 'EURUSD_Candlesticks_1_M_BID_2024.csv'
 # Output format: DD.MM.YYYY HH:MM:SS.000,Open,High,Low,Close,Volume,
 # No header row, comma-separated, trailing comma at end of each line
 with open(output_file, 'w', newline='') as f:

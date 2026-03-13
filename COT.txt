@@ -1,0 +1,20 @@
+Traders in Financial Futures - Options and Futures Combined Positions as of March 10, 2026                                                                 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+              Dealer            :           Asset Manager/       :            Leveraged           :              Other             :     Nonreportable    :
+           Intermediary         :           Institutional        :              Funds             :           Reportables          :       Positions      :
+    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short   :
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+EURO FX - CHICAGO MERCANTILE EXCHANGE   (CONTRACTS OF EUR 125,000)                                                                                         
+CFTC Code #099741                                                    Open Interest is 1,118,597
+Positions
+    69,177    470,670    119,970    536,610    143,264     39,382     74,946    113,696    154,811     20,437     14,463      4,242     99,022     58,099
+ 
+Changes from:       March 3, 2026                                    Total Change is:    34,462
+     2,204    -30,229     50,064    -10,338     -2,978       -749    -18,282     -1,524      9,404        217        541        899      1,043      9,034
+ 
+Percent of Open Interest Represented by Each Category of Trader
+       6.2       42.1       10.7       48.0       12.8        3.5        6.7       10.2       13.8        1.8        1.3        0.4        8.9        5.2
+ 
+Number of Traders in Each Category                                    Total Traders:       327 
+        19          9         19        119         44         60         49         43         36         25         19          6
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
