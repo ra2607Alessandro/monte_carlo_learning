@@ -18,3 +18,24 @@ Percent of Open Interest Represented by Each Category of Trader
 Number of Traders in Each Category                                    Total Traders:       327 
         19          9         19        119         44         60         49         43         36         25         19          6
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+Traders in Financial Futures - Futures Only Positions as of March 3, 2026                                                                                  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+              Dealer            :           Asset Manager/       :            Leveraged           :              Other             :     Nonreportable    :
+           Intermediary         :           Institutional        :              Funds             :           Reportables          :       Positions      :
+    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short   :
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+EURO FX - CHICAGO MERCANTILE EXCHANGE   (CONTRACTS OF EUR 125,000)                                                                                         
+CFTC Code #099741                                                    Open Interest is   913,289
+Positions
+    56,431    511,111     22,836    519,444    149,172     35,279    128,443     98,811     35,567     20,135     13,454      3,228     91,926     43,831
+ 
+Changes from:       February 24, 2026                                Total Change is:     2,002
+     1,069    -44,010       -481    -14,258     10,771       -164      7,479     14,644     16,281     -6,393        540       -121     -1,410      4,542
+ 
+Percent of Open Interest Represented by Each Category of Trader
+       6.2       56.0        2.5       56.9       16.3        3.9       14.1       10.8        3.9        2.2        1.5        0.4       10.1        4.8
+ 
+Number of Traders in Each Category                                    Total Traders:       315 
+        18         11         10        119         39         48         54         39         22         22         13          .
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
