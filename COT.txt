@@ -1,4 +1,26 @@
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
+Traders in Financial Futures - Options and Futures Combined Positions as of March 24, 2026                                                                 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+              Dealer            :           Asset Manager/       :            Leveraged           :              Other             :     Nonreportable    :
+           Intermediary         :           Institutional        :              Funds             :           Reportables          :       Positions      :
+    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short  : Spreading:    Long  :   Short   :
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+EURO FX - CHICAGO MERCANTILE EXCHANGE   (CONTRACTS OF EUR 125,000)                                                                                         
+CFTC Code #099741                                                    Open Interest is   917,423
+Positions
+    47,835    340,795     57,911    466,024    157,723     40,522     69,634    125,673    121,318     20,745     17,836      3,223     90,210     52,422
+ 
+Changes from:       March 17, 2026                                   Total Change is:     8,147
+    10,163     -5,400      5,092     -7,838        936     -1,791     -7,959     -1,464     10,515        678      1,070        213       -925     -1,024
+ 
+Percent of Open Interest Represented by Each Category of Trader
+       5.2       37.1        6.3       50.8       17.2        4.4        7.6       13.7       13.2        2.3        1.9        0.4        9.8        5.7
+ 
+Number of Traders in Each Category                                    Total Traders:       331 
+        21         10         16        118         47         54         41         46         35         26         22          6
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 Traders in Financial Futures - Options and Futures Combined Positions as of March 17, 2026                                                                 
 -----------------------------------------------------------------------------------------------------------------------------------------------------------
               Dealer            :           Asset Manager/       :            Leveraged           :              Other             :     Nonreportable    :
